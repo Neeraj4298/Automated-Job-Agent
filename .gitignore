@@ -11,8 +11,10 @@
 .playwright_profiles/
 screenshots/
 logs/
+reports/
 queue/
 *.log
+*.csv
 *.png
 *.html
 *.json

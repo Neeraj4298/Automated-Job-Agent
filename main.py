@@ -63,7 +63,7 @@ class AgentRunner:
             from config import settings
             self.settings = settings
         except Exception as e:
-            logger.error(f"Config error: {e}")
+            logger.error(f"Config error: {type(e).__name__}")
             logger.error("Copy .env.example → .env and fill in your values, then retry.")
             sys.exit(1)
 
@@ -85,7 +85,7 @@ class AgentRunner:
                 with open(saved_answers_path, "r") as f:
                     saved_answers = json.load(f)
             except Exception as e:
-                logger.warning(f"Could not load saved_answers.json: {e}")
+                logger.warning(f"Could not load saved answers: {type(e).__name__}")
 
         return {
             "full_name": self.settings.full_name,
@@ -151,7 +151,7 @@ class AgentRunner:
             asyncio.run(bot.run())
             session_stats["total_applied"] = 1  # Dummy update as logic is inside bot
         except BaseException as e:
-            logger.error(f"Naukri Bot execution error: {e}")
+            logger.error(f"Naukri Bot execution error: {type(e).__name__}")
 
         end_time = datetime.utcnow()
         duration = (end_time - start_time).seconds // 60
@@ -190,7 +190,7 @@ class AgentRunner:
                 html_body=html,
             )
         except Exception as e:
-            logger.warning(f"Report/email failed (non-fatal): {e}")
+            logger.warning(f"Report/email failed: {type(e).__name__}")
 
     def start_scheduler(self) -> None:
         """Start APScheduler to run the agent daily within 08:00–21:00."""

@@ -30,5 +30,5 @@ async def send_telegram_alert(message: str) -> bool:
         logger.info(f"Telegram alert sent: {message[:60]}…")
         return True
     except Exception as e:
-        logger.error(f"Telegram alert failed: {e}")
+        logger.error(f"Telegram alert failed: {type(e).__name__}")
         return False

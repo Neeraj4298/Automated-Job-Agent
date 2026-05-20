@@ -237,7 +237,7 @@ async def scroll_to_element(page: Page, locator: Locator) -> None:
         await locator.scroll_into_view_if_needed()
         await asyncio.sleep(0.3)
     except Exception as e:
-        logger.debug(f"Scroll failed (non-fatal): {e}")
+        logger.debug(f"Scroll failed: {type(e).__name__}")
 
 
 # ── Sensitive Field Detection ──────────────────────────────────────────────
@@ -262,7 +262,7 @@ async def detect_sensitive_fields(page: Page) -> List[str]:
             if SENSITIVE_FIELD_PATTERNS.search(text):
                 suspicious.append(f"label={text}")
     except Exception as e:
-        logger.warning(f"Sensitive field scan error: {e}")
+        logger.warning(f"Sensitive field scan error: {type(e).__name__}")
     return suspicious
 
 

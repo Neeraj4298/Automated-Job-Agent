@@ -230,7 +230,7 @@ class LLMClient:
         try:
             return json.loads(text)
         except json.JSONDecodeError as e:
-            logger.error(f"JSON parse error from LLM response: {e}")
+            logger.error(f"JSON parse error from LLM response: {type(e).__name__}")
             return None
 
     @property

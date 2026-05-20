@@ -129,7 +129,7 @@ class LinkedInBot:
                 with open(self.saved_answers_path, "r") as f:
                     self.saved_answers = json.load(f)
             except Exception as e:
-                logger.warning(f"Could not load saved_answers.json: {e}")
+                logger.warning(f"Could not load saved answers: {type(e).__name__}")
         self._ensure_csv_exists()
         self.llm = LLMClient()
 
@@ -240,7 +240,7 @@ class LinkedInBot:
                 await async_sleep(1)
                 count += 1
         except Exception as e:
-            logger.debug(f"Accept invitations: {e}")
+            logger.debug(f"Accept invitations failed: {type(e).__name__}")
 
         # Feed engagement
         try:
@@ -261,7 +261,7 @@ class LinkedInBot:
                     logger.info("Liked a feed post.")
                     await async_sleep(random.uniform(2.0, 4.0))
         except Exception as e:
-            logger.warning(f"Feed engagement: {e}")
+            logger.warning(f"Feed engagement failed: {type(e).__name__}")
 
         # Send 5 recruiter connection requests
         try:
@@ -289,7 +289,7 @@ class LinkedInBot:
                         await dismiss.click()
                 await async_sleep(random.uniform(2.0, 4.0))
         except Exception as e:
-            logger.debug(f"Recruiter connection requests: {e}")
+            logger.debug(f"Recruiter connection requests failed: {type(e).__name__}")
 
     # ── Hidden jobs hack (post search) ──────────────────────────────
 
@@ -327,7 +327,7 @@ class LinkedInBot:
                     poster_url = await poster_link.get_attribute("href")
                     await self._connect_with_user(page, poster_url, "Hidden Role", "your company")
         except Exception as e:
-            logger.error(f"Hidden jobs hack: {e}")
+            logger.error(f"Hidden jobs workflow failed: {type(e).__name__}")
 
     # ── Email extraction ─────────────────────────────────────────────
 
@@ -412,7 +412,7 @@ class LinkedInBot:
                         break
                     await self._process_single_job_card(page, current_cards[i])
                 except Exception as e:
-                    logger.error(f"Card {i}: {e}")
+                    logger.error(f"Card processing failed: {type(e).__name__}")
 
             # Next page
             try:
@@ -549,7 +549,7 @@ Answer this job application question: "{question}"
                     return ""
                 return ans
         except Exception as e:
-            logger.debug(f"LLM inference failed: {e}")
+            logger.debug(f"LLM inference failed: {type(e).__name__}")
         return ""
 
     # ── Easy Apply flow ──────────────────────────────────────────────
@@ -637,9 +637,9 @@ Answer this job application question: "{question}"
                                     self.saved_answers[question.replace("*", "").strip()] = answer
                                     with open(self.saved_answers_path, "w") as f:
                                         json.dump(self.saved_answers, f, indent=4)
-                                    logger.success(f"Saved new answer for '{question}'")
+                                    logger.success("Saved new screening answer.")
                             except BaseException as be:
-                                logger.debug(f"Input interrupted: {be}")
+                                logger.debug(f"Input interrupted: {type(be).__name__}")
 
                         if answer:
                             tag_name = await field.evaluate("el => el.tagName.toLowerCase()")
@@ -653,12 +653,12 @@ Answer this job application question: "{question}"
                                         break
                                 if best_opt:
                                     await field.select_option(label=best_opt)
-                                    logger.info(f"    Selected '{best_opt}' for '{question}'")
+                                    logger.info("Selected screening option.")
                             elif tag_name == "input":
                                 type_attr = await field.get_attribute("type")
                                 if type_attr in ["text", "number", "tel", "email"]:
                                     await field.fill(answer)
-                                    logger.info(f"    Filled '{answer}' for '{question}'")
+                                    logger.info("Filled screening answer.")
 
                     fieldsets = await modal.locator("fieldset").all()
                     for fs in fieldsets:
@@ -688,18 +688,18 @@ Answer this job application question: "{question}"
                                         self.saved_answers[question.replace("*", "").strip()] = answer
                                         with open(self.saved_answers_path, "w") as f:
                                             json.dump(self.saved_answers, f, indent=4)
-                                        logger.success(f"Saved new answer for '{question}'")
+                                        logger.success("Saved new screening answer.")
                                 except BaseException as be:
-                                    logger.debug(f"Input interrupted: {be}")
+                                    logger.debug(f"Input interrupted: {type(be).__name__}")
                                     
                             if answer:
                                 # Sometimes answer is 'Yes' but radio is 'Yes' or 'Yes.'
                                 radio_label = fs.locator(f"label:has-text('{answer}'), label:has-text('{answer.capitalize()}')").first
                                 if await radio_label.is_visible():
                                     await radio_label.click()
-                                    logger.info(f"    Selected radio '{answer}' for '{question}'")
+                                    logger.info("Selected screening radio option.")
                 except Exception as e:
-                    logger.debug(f"Error during form filling: {e}")
+                    logger.debug(f"Form filling error: {type(e).__name__}")
 
                 # Try "Next" first, then "Review", then "Submit"
                 for label in ["Next", "Review", "Submit application"]:
@@ -718,7 +718,7 @@ Answer this job application question: "{question}"
                             try:
                                 await asyncio.to_thread(input, "Press Enter here after you have fixed the issue (or to just retry): ")
                             except BaseException as be:
-                                logger.debug(f"Input interrupted: {be}")
+                                logger.debug(f"Input interrupted: {type(be).__name__}")
                             
                             # Re-click the button after manual intervention
                             if await btn_next.is_visible():
@@ -761,7 +761,7 @@ Answer this job application question: "{question}"
 
             await async_sleep(between_applications())
         except Exception as e:
-            logger.error(f"Easy Apply failed for {job_title} @ {company}: {e}")
+            logger.error(f"Easy Apply failed: {type(e).__name__}")
 
     # ── Scenario B helper: find & connect recruiter ──────────────────
 
@@ -814,7 +814,7 @@ Answer this job application question: "{question}"
                     
             logger.warning(f"Exhausted all search hacks. No recruiter found for {company}.")
         except Exception as e:
-            logger.error(f"Scenario B — recruiter search: {e}")
+            logger.error(f"Scenario B recruiter search failed: {type(e).__name__}")
         finally:
             await sp.close()
 
@@ -877,7 +877,7 @@ Answer this job application question: "{question}"
                 await close.click()
             await async_sleep(random.uniform(1.5, 2.5))
         except Exception as e:
-            logger.error(f"DM to {name}: {e}")
+            logger.error(f"DM failed: {type(e).__name__}")
 
     # ── Core: connect + save to CSV ──────────────────────────────────
 
@@ -1006,7 +1006,7 @@ Answer this job application question: "{question}"
                 await self._send_dm(cp, first_name, profile_type, job_title, company)
 
         except Exception as e:
-            logger.error(f"_connect_with_user({clean_url}): {e}")
+            logger.error(f"Connect workflow failed: {type(e).__name__}")
         finally:
             await cp.close()
             await async_sleep(between_applications())
@@ -1014,7 +1014,7 @@ Answer this job application question: "{question}"
     # ── Main entry ───────────────────────────────────────────────────
 
     async def run(self) -> None:
-        async with BrowserEngine(headless=settings.headless, profile_name="linkedin_profile") as engine:
+        async with BrowserEngine(headless=settings.headless) as engine:
             page = await engine.new_page()
 
             await self.login(page)

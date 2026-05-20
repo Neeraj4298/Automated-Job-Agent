@@ -11,7 +11,7 @@ async def debug_profile():
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from browser.engine import BrowserEngine
         
-        async with BrowserEngine(headless=False, profile_name="naukri_profile") as engine:
+        async with BrowserEngine(headless=False) as engine:
             page = await engine.new_page()
             await page.goto("https://www.naukri.com/mnjuser/profile", wait_until="networkidle")
             

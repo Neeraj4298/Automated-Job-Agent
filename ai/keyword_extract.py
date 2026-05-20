@@ -80,7 +80,7 @@ def extract_keywords_llm(text: str) -> Optional[List[str]]:
         if result and "top_keywords" in result:
             return result["top_keywords"]
     except Exception as e:
-        logger.warning(f"LLM keyword extraction failed: {e}")
+        logger.warning(f"LLM keyword extraction failed: {type(e).__name__}")
     return None
 
 

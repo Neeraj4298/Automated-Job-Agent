@@ -5,12 +5,11 @@ Provides an async context manager `BrowserEngine` that:
   1. Launches a Playwright-controlled Chromium browser
   2. Applies playwright-stealth patches to avoid bot detection
   3. Rotates User-Agent and viewport per session
-  4. Provides opt-in local cookie persistence
-  5. Provides opt-in screenshots and file upload helpers
+  4. Avoids persistent browser profiles and plaintext cookie export
+  5. Provides file upload helpers without logging local paths
 """
 
 import asyncio
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -37,7 +36,6 @@ from browser.useragents import get_random_ua, get_random_viewport
 
 
 SCREENSHOTS_DIR = Path("screenshots")
-COOKIES_DIR = Path("queue/cookies")
 
 
 class BrowserEngine:
@@ -53,7 +51,9 @@ class BrowserEngine:
     def __init__(self, headless: bool = True, slow_mo: int = 0, profile_name: Optional[str] = None):
         self.headless = headless
         self.slow_mo = slow_mo
-        self.profile_name = profile_name
+        if profile_name:
+            logger.debug("Persistent browser profiles are disabled; using ephemeral context.")
+        self.profile_name = None
         self._playwright: Optional[Playwright] = None
         self._browser: Optional[Browser] = None
         self._context: Optional[BrowserContext] = None
@@ -61,9 +61,6 @@ class BrowserEngine:
         self.viewport: dict = get_random_viewport()
 
         SCREENSHOTS_DIR.mkdir(exist_ok=True)
-        COOKIES_DIR.mkdir(parents=True, exist_ok=True)
-        if self.profile_name:
-            Path(".playwright_profiles").mkdir(exist_ok=True)
 
     async def __aenter__(self) -> "BrowserEngine":
         self._playwright = await async_playwright().start()
@@ -78,42 +75,23 @@ class BrowserEngine:
             "--disable-notifications",
         ]
 
-        if self.profile_name:
-            # Persistent context launches the browser AND context in one go
-            profile_path = Path(".playwright_profiles") / self.profile_name
-            self._context = await self._playwright.chromium.launch_persistent_context(
-                user_data_dir=str(profile_path),
-                headless=self.headless,
-                slow_mo=self.slow_mo,
-                user_agent=self.user_agent,
-                viewport=self.viewport,
-                args=args,
-                locale="en-US",
-                timezone_id="America/New_York",
-                permissions=["geolocation"],
-                geolocation={"latitude": 40.7128, "longitude": -74.0060},
-                java_script_enabled=True,
-                accept_downloads=True,
-            )
-        else:
-            self._browser = await self._playwright.chromium.launch(
-                headless=self.headless,
-                slow_mo=self.slow_mo,
-                args=args,
-            )
-            self._context = await self._browser.new_context(
-                user_agent=self.user_agent,
-                viewport=self.viewport,
-                locale="en-US",
-                timezone_id="America/New_York",
-                permissions=["geolocation"],
-                geolocation={"latitude": 40.7128, "longitude": -74.0060},
-                java_script_enabled=True,
-                accept_downloads=True,
-            )
+        self._browser = await self._playwright.chromium.launch(
+            headless=self.headless,
+            slow_mo=self.slow_mo,
+            args=args,
+        )
+        self._context = await self._browser.new_context(
+            user_agent=self.user_agent,
+            viewport=self.viewport,
+            locale="en-US",
+            timezone_id="America/New_York",
+            permissions=[],
+            java_script_enabled=True,
+            accept_downloads=True,
+        )
         
         self._context.set_default_timeout(60000)
-        logger.debug(f"Browser started (Persistent: {bool(self.profile_name)}). UA: {self.user_agent[:60]}…")
+        logger.debug("Browser started.")
         return self
 
     async def __aexit__(self, *_) -> None:
@@ -144,36 +122,13 @@ class BrowserEngine:
     # ── Cookie persistence ────────────────────────────────────────────
 
     async def save_cookies(self, domain: str) -> None:
-        """Persist cookies for a domain only when explicitly enabled locally."""
-        if not self._context:
-            return
-        if os.getenv("ALLOW_PLAINTEXT_COOKIE_CACHE", "").lower() != "true":
-            logger.debug("Cookie persistence disabled; not saving browser cookies.")
-            return
-        import json
-        cookies = await self._context.cookies()
-        domain_cookies = [c for c in cookies if domain in c.get("domain", "")]
-        path = COOKIES_DIR / f"{domain.replace('.', '_')}.json"
-        path.write_text(json.dumps(domain_cookies, indent=2))
-        logger.debug(f"Saved {len(domain_cookies)} cookies for {domain}")
+        """Cookie export is intentionally disabled for public-repo safety."""
+        logger.debug("Cookie export disabled.")
 
     async def load_cookies(self, domain: str) -> bool:
-        """Load previously saved cookies for a domain. Returns True if found."""
-        if os.getenv("ALLOW_PLAINTEXT_COOKIE_CACHE", "").lower() != "true":
-            logger.debug("Cookie persistence disabled; not loading browser cookies.")
-            return False
-        import json
-        path = COOKIES_DIR / f"{domain.replace('.', '_')}.json"
-        if not path.exists():
-            return False
-        try:
-            cookies = json.loads(path.read_text())
-            await self._context.add_cookies(cookies)
-            logger.debug(f"Loaded {len(cookies)} cookies for {domain}")
-            return True
-        except Exception as e:
-            logger.warning(f"Failed to load cookies for {domain}: {type(e).__name__}")
-            return False
+        """Cookie import is intentionally disabled for public-repo safety."""
+        logger.debug("Cookie import disabled.")
+        return False
 
     # ── Screenshots ───────────────────────────────────────────────────
 
@@ -187,12 +142,8 @@ class BrowserEngine:
         filename = f"{job_id[:16]}_{suffix}.png"
         path = SCREENSHOTS_DIR / filename
         try:
-            if os.getenv("ENABLE_SCREENSHOTS", "").lower() != "true":
-                logger.debug("Screenshot capture disabled.")
-                return ""
-            await page.screenshot(path=str(path), full_page=True)
-            logger.debug(f"Screenshot saved: {path}")
-            return str(path)
+            logger.debug("Screenshot capture disabled.")
+            return ""
         except Exception as e:
             logger.warning(f"Screenshot failed: {type(e).__name__}")
             return ""
@@ -210,7 +161,7 @@ class BrowserEngine:
             try:
                 # Try as a standard file input first
                 await page.set_input_files(selector, file_path, timeout=10000)
-                logger.debug(f"File uploaded via set_input_files: {file_path} → {selector}")
+                logger.debug("File uploaded.")
                 return True
             except Exception:
                 try:
@@ -219,10 +170,10 @@ class BrowserEngine:
                         await page.locator(selector).click()
                     file_chooser = await fc_info.value
                     await file_chooser.set_files(file_path)
-                    logger.debug(f"File uploaded via file chooser: {file_path} → {selector}")
+                    logger.debug("File uploaded.")
                     return True
                 except Exception as e:
-                    logger.warning(f"File upload attempt {attempt} failed: {e}")
+                    logger.warning(f"File upload attempt failed: {type(e).__name__}")
                     if attempt < retries:
                         await asyncio.sleep(2)
         return False

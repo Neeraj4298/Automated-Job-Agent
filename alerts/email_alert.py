@@ -45,7 +45,7 @@ def send_email_alert(
         logger.info(f"Email sent: {subject}")
         return True
     except Exception as e:
-        logger.error(f"Email send failed: {e}")
+        logger.error(f"Email send failed: {type(e).__name__}")
         return False
 
 

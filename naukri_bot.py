@@ -126,7 +126,7 @@ class NaukriBot:
                     return
                     
         except Exception as e:
-            logger.warning(f"Could not perform profile hack via Resume Headline: {e}")
+            logger.warning(f"Profile headline update failed: {type(e).__name__}")
 
         # Fallback to Profile Summary
         try:
@@ -149,7 +149,7 @@ class NaukriBot:
                     await page.locator("button:has-text('Save')").locator("visible=true").first.click()
                     logger.info("Profile Hack successfully registered via Profile Summary.")
         except Exception as e:
-            logger.warning(f"Could not perform profile hack via Profile Summary: {e}")
+            logger.warning(f"Profile summary update failed: {type(e).__name__}")
 
     async def _extract_emails(self, text: str) -> List[str]:
         """
@@ -198,7 +198,7 @@ class NaukriBot:
             logger.info(f"Chatbot asks: {last_bot_msg}")
             
             if "successfully applied" in last_bot_msg.lower() or "application submitted" in last_bot_msg.lower() or "thank you" in last_bot_msg.lower():
-                logger.success(f"Successfully applied to {job_title} via Chatbot.")
+                logger.success("Successfully applied via chatbot.")
                 break
                 
             chatbot_selectors = [
@@ -245,10 +245,10 @@ class NaukriBot:
                     saved_data = json.load(f)
 
             if options:
-                logger.info(f"Available options: {opt_texts}")
+                logger.info("Screening options available.")
                 if last_bot_msg in saved_data and saved_data[last_bot_msg] in opt_texts:
                     answer = saved_data[last_bot_msg]
-                    logger.info(f"Found saved answer: {answer}")
+                    logger.info("Found saved screening answer.")
                 else:
                     print(f"\n[?] Chatbot asks: '{last_bot_msg}'")
                     print(f"Options available: {opt_texts}")
@@ -264,7 +264,7 @@ class NaukriBot:
                         with open(self.saved_answers_path, "w") as f:
                             json.dump(saved_data, f, indent=4)
                     except Exception as e:
-                        logger.error(f"Failed to save answer: {e}")
+                        logger.error(f"Failed to save answer: {type(e).__name__}")
                 
                 if answer and answer in opt_texts:
                     idx = opt_texts.index(answer)
@@ -280,7 +280,7 @@ class NaukriBot:
             elif input_box and await input_box.is_visible():
                 if last_bot_msg in saved_data:
                     answer = saved_data[last_bot_msg]
-                    logger.info(f"Found saved answer: {answer}")
+                    logger.info("Found saved screening answer.")
                 else:
                     print(f"\n[?] Chatbot asks: '{last_bot_msg}'")
                     try:
@@ -295,7 +295,7 @@ class NaukriBot:
                         with open(self.saved_answers_path, "w") as f:
                             json.dump(saved_data, f, indent=4)
                     except Exception as e:
-                        logger.error(f"Failed to save answer: {e}")
+                        logger.error(f"Failed to save answer: {type(e).__name__}")
                     
                 await input_box.fill(str(answer))
                 send_btn = active_context.locator(".send-icon, .send-btn, button[title='Send'], [class*='sendIcon'], [class*='sendBtn'], button[class*='send']").first
@@ -358,7 +358,7 @@ class NaukriBot:
                 else:
                     logger.warning(f"Dropdown opened, but could not find '{exp_text}' option.")
         except Exception as e:
-            logger.error(f"Failed to select experience from dropdown: {e}")
+            logger.error(f"Failed to select experience from dropdown: {type(e).__name__}")
 
     async def _apply_freshness_filter(self, page: Page) -> None:
         """Apply 'Last 7 Days' freshness filter on the sidebar."""
@@ -368,7 +368,7 @@ class NaukriBot:
                 await freshness_checkbox.click()
                 await async_sleep(page_load_buffer())
         except Exception as e:
-            logger.debug(f"Could not click 7-day filter: {e}")
+            logger.debug(f"Could not click 7-day filter: {type(e).__name__}")
 
     async def _process_job_pages(self, page: Page) -> None:
         """Iterate through paginated job search results."""
@@ -393,7 +393,7 @@ class NaukriBot:
                     await self._process_single_job_card(page, card)
                     
                 except Exception as e:
-                    logger.error(f"Error processing job card {i}: {e}")
+                    logger.error(f"Error processing job card: {type(e).__name__}")
             
             # Pagination
             try:
@@ -409,7 +409,7 @@ class NaukriBot:
                     logger.info("No 'Next' button found. Finished processing query.")
                     break
             except Exception as e:
-                logger.debug(f"Could not click Next button or reached end of results: {e}")
+                logger.debug(f"Could not click Next button or reached end: {type(e).__name__}")
                 break
 
     async def _process_single_job_card(self, page: Page, card: Page.locator) -> None:
@@ -422,10 +422,10 @@ class NaukriBot:
         company_elem = card.locator("a.comp-name")
         company = await company_elem.inner_text() if await company_elem.is_visible() else "Unknown"
         
-        logger.info(f"Checking job: {job_title} at {company}")
+        logger.info("Checking job.")
         
         if "accenture" in company.lower():
-            logger.info(f"Skipping Accenture job: {job_title}")
+            logger.info("Skipping blocked company.")
             return
             
         job_url = await title_elem.get_attribute("href")
@@ -455,7 +455,7 @@ class NaukriBot:
 
     def _handle_scenario_a(self, job_title: str, company: str, email: str) -> None:
         """Handle Scenario A: Recruiter email is present."""
-        logger.success(f"Scenario A: Found email {email}. Logging to CSV and skipping apply.")
+        logger.success("Scenario A: recruiter email found; skipping apply.")
         with open(self.recruiters_csv, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["Recruiter", email, job_title, company])
@@ -479,11 +479,11 @@ class NaukriBot:
             success_msg_3 = job_page.locator("text='Applied'").first
             
             if await success_msg.is_visible(timeout=2000) or await success_msg_2.is_visible(timeout=2000):
-                logger.success(f"Successfully applied to {job_title}")
+                logger.success("Successfully applied.")
             else:
                 applied_btn = job_page.locator("button:has-text('Applied')").first
                 if await applied_btn.is_visible(timeout=2000) or await success_msg_3.is_visible(timeout=2000):
-                    logger.success(f"Successfully applied to {job_title}")
+                    logger.success("Successfully applied.")
                 else:
                     chatbot = job_page.locator(".chatbot, .chat-window, .chatbot_Drawer, #chatbot-root, [class*='chatbot'], [class*='chatWindow']")
                     if await chatbot.first.is_visible(timeout=2000):
@@ -491,7 +491,7 @@ class NaukriBot:
                         try:
                             await self._handle_chatbot(job_page, job_title, company)
                         except Exception as e:
-                            logger.error(f"Chatbot handling failed: {e}")
+                            logger.error(f"Chatbot handling failed: {type(e).__name__}")
                     else:
                         logger.info("Clicked apply, but couldn't verify success message. (No chatbot detected)")
         else:
@@ -501,7 +501,7 @@ class NaukriBot:
         """
         Main execution flow for the Naukri bot.
         """
-        async with BrowserEngine(headless=settings.headless, profile_name="naukri_profile") as engine:
+        async with BrowserEngine(headless=settings.headless) as engine:
             page = await engine.new_page()
             
             await self.login(page)
