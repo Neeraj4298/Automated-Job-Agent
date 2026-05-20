@@ -82,15 +82,8 @@ class AgentRunner:
             "location_filter": self.settings.location_filter,
             "allow_contract": self.settings.allow_contract,
             "allow_internship": self.settings.allow_internship,
-            "skills_summary": self.settings.skills_summary or (
-                "Python, FastAPI, MongoDB, Google Cloud Functions, REST APIs, SQL, "
-                "Data Analysis, Tableau, Pandas, NumPy, Matplotlib, Machine Learning"
-            ),
-            "achievements": self.settings.achievements or (
-                "Implemented automatic MongoDB indexing significantly reducing query time and UI load time. "
-                "Led a 20-member social service team. "
-                "Organized the Diya Project generating revenue of 1.25 lakhs."
-            ),
+            "skills_summary": self.settings.skills_summary or "[Enter your skills here]",
+            "achievements": self.settings.achievements or "[Enter your top achievements here]",
             "work_authorization": self.settings.work_authorization,
             "salary_expectation": self.settings.salary_expectation,
             "willing_to_relocate": self.settings.willing_to_relocate,
