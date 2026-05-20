@@ -141,7 +141,7 @@ class LLMClient:
             )
             text = response.text
             if not text:
-                logger.error(f"Gemini returned empty text. Raw: {response}")
+                logger.error("Gemini returned empty text.")
                 raise ValueError("Empty response from Gemini")
             
             usage = response.usage_metadata
@@ -149,10 +149,10 @@ class LLMClient:
                 self._token_usage["input"] += usage.prompt_token_count
                 self._token_usage["output"] += usage.candidates_token_count
 
-            logger.debug(f"Gemini response ({len(text)} chars): {text[:120]}…")
+            logger.debug(f"Gemini response received ({len(text)} chars).")
             return self._parse_json(text)
         except Exception as e:
-            logger.error(f"Gemini API error: {e}")
+            logger.error(f"Gemini API error: {type(e).__name__}")
             raise
 
     # ── Anthropic Claude ───────────────────────────────────────────────
@@ -180,7 +180,7 @@ class LLMClient:
             self._token_usage["output"] += response.usage.output_tokens
             return self._parse_json(text)
         except Exception as e:
-            logger.error(f"Anthropic API error: {e}")
+            logger.error(f"Anthropic API error: {type(e).__name__}")
             raise
 
     # ── OpenAI GPT ─────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ class LLMClient:
                 self._token_usage["output"] += usage.completion_tokens
             return self._parse_json(text)
         except Exception as e:
-            logger.error(f"OpenAI API error: {e}")
+            logger.error(f"OpenAI API error: {type(e).__name__}")
             raise
 
     # ── JSON parsing ───────────────────────────────────────────────────
@@ -230,7 +230,7 @@ class LLMClient:
         try:
             return json.loads(text)
         except json.JSONDecodeError as e:
-            logger.error(f"JSON parse error from LLM response: {e}\nRaw: {text[:200]}")
+            logger.error(f"JSON parse error from LLM response: {e}")
             return None
 
     @property

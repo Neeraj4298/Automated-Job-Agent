@@ -69,35 +69,35 @@ SENSITIVE_FIELD_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
-# Shared field mappings based on Mode 2 blueprint
+# Generic examples only. Real candidate data must come from local runtime config.
 FIELD_MAPPING = {
     # Name
-    "name": "Kamera Vamshi",
-    "full name": "Kamera Vamshi",
-    "first name": "Kamera",
-    "last name": "Vamshi",
-    "surname": "Vamshi",
+    "name": "Example Candidate",
+    "full name": "Example Candidate",
+    "first name": "Example",
+    "last name": "Candidate",
+    "surname": "Candidate",
     
     # Contact
-    "email": "vamshi.kamera16@gmail.com",
-    "email id": "vamshi.kamera16@gmail.com",
-    "phone": "+919014170305",
-    "mobile": "+919014170305",
-    "contact": "+919014170305",
+    "email": "candidate@example.com",
+    "email id": "candidate@example.com",
+    "phone": "+10000000000",
+    "mobile": "+10000000000",
+    "contact": "+10000000000",
     
     # Location
-    "location": "India", # Wait for config injection in handlers
-    "city": "Hyderabad",
-    "state": "Telangana",
-    "province": "Telangana",
-    "country": "India",
-    "pincode": "500050",
-    "zip": "500050",
-    "postal": "500050",
+    "location": "Remote",
+    "city": "Example City",
+    "state": "Example State",
+    "province": "Example Province",
+    "country": "Example Country",
+    "pincode": "000000",
+    "zip": "000000",
+    "postal": "000000",
     
     # Experience
-    "current company": "Tudip Technologies",
-    "employer": "Tudip Technologies",
+    "current company": "Example Company",
+    "employer": "Example Company",
     "current role": "Software Developer",
     "designation": "Software Developer",
     "experience": "1",
@@ -108,8 +108,8 @@ FIELD_MAPPING = {
     # Education
     "degree": "B.Tech",
     "qualification": "B.Tech",
-    "university": "NIT Rourkela",
-    "college": "NIT Rourkela",
+    "university": "Example University",
+    "college": "Example College",
     "graduation year": "2024",
     "cgpa": "7.63",
     "gpa": "7.63",

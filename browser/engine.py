@@ -5,11 +5,12 @@ Provides an async context manager `BrowserEngine` that:
   1. Launches a Playwright-controlled Chromium browser
   2. Applies playwright-stealth patches to avoid bot detection
   3. Rotates User-Agent and viewport per session
-  4. Manages cookie persistence
-  5. Provides helper methods for screenshots and file uploads
+  4. Provides opt-in local cookie persistence
+  5. Provides opt-in screenshots and file upload helpers
 """
 
 import asyncio
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -143,8 +144,11 @@ class BrowserEngine:
     # ── Cookie persistence ────────────────────────────────────────────
 
     async def save_cookies(self, domain: str) -> None:
-        """Persist cookies for a domain to disk."""
+        """Persist cookies for a domain only when explicitly enabled locally."""
         if not self._context:
+            return
+        if os.getenv("ALLOW_PLAINTEXT_COOKIE_CACHE", "").lower() != "true":
+            logger.debug("Cookie persistence disabled; not saving browser cookies.")
             return
         import json
         cookies = await self._context.cookies()
@@ -155,6 +159,9 @@ class BrowserEngine:
 
     async def load_cookies(self, domain: str) -> bool:
         """Load previously saved cookies for a domain. Returns True if found."""
+        if os.getenv("ALLOW_PLAINTEXT_COOKIE_CACHE", "").lower() != "true":
+            logger.debug("Cookie persistence disabled; not loading browser cookies.")
+            return False
         import json
         path = COOKIES_DIR / f"{domain.replace('.', '_')}.json"
         if not path.exists():
@@ -165,7 +172,7 @@ class BrowserEngine:
             logger.debug(f"Loaded {len(cookies)} cookies for {domain}")
             return True
         except Exception as e:
-            logger.warning(f"Failed to load cookies for {domain}: {e}")
+            logger.warning(f"Failed to load cookies for {domain}: {type(e).__name__}")
             return False
 
     # ── Screenshots ───────────────────────────────────────────────────
@@ -180,11 +187,14 @@ class BrowserEngine:
         filename = f"{job_id[:16]}_{suffix}.png"
         path = SCREENSHOTS_DIR / filename
         try:
+            if os.getenv("ENABLE_SCREENSHOTS", "").lower() != "true":
+                logger.debug("Screenshot capture disabled.")
+                return ""
             await page.screenshot(path=str(path), full_page=True)
             logger.debug(f"Screenshot saved: {path}")
             return str(path)
         except Exception as e:
-            logger.warning(f"Screenshot failed: {e}")
+            logger.warning(f"Screenshot failed: {type(e).__name__}")
             return ""
 
     # ── File upload ───────────────────────────────────────────────────

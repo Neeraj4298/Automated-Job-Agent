@@ -21,13 +21,14 @@ from exceptions import LoginError, BotDetectionError
 from ai.llm_client import LLMClient
 
 # ─────────────────────────────────────────────
-#  Vamshi's profile snapshot (used in messages)
+#  Candidate profile snapshot (used in messages)
+#  Real values must come from local .env, never from committed source.
 # ─────────────────────────────────────────────
-MY_NAME    = "Vamshi"
-MY_SKILLS  = "Python, FastAPI, GCP, MongoDB, PostgreSQL, Generative AI, LLMs, RAG, Distributed ETL Pipelines"
-MY_COLLEGE = "NIT Rourkela (B.Tech)"
-MY_NOTICE  = "15 days"
-MY_ACHIEVEMENT = "engineered distributed data pipelines reducing batch processing times by 67%"
+MY_NAME = settings.full_name.split()[0] if settings.full_name else "Candidate"
+MY_SKILLS = settings.skills_summary or "Python, FastAPI, cloud, data engineering"
+MY_COLLEGE = "Configured in resume"
+MY_NOTICE = settings.available_start_date or "Configured locally"
+MY_ACHIEVEMENT = settings.achievements or "built reliable backend and data systems"
 
 # ─────────────────────────────────────────────
 #  Outreach message templates
@@ -102,7 +103,7 @@ class LinkedInBot:
     • Skips jobs with an external "Apply" button (only Easy Apply is used)
     • Sends referral DM after connecting with alumni / employees
     • Sends interview-schedule request to HR / Recruiters
-    • Mentions Vamshi's skills explicitly in every outreach message
+    • Mentions the candidate's skills explicitly in every outreach message
     """
 
     # ── CSV columns ──────────────────────────────────────────────────
@@ -510,7 +511,7 @@ class LinkedInBot:
     # ── Answer Inference ──────────────────────────────────────────────
     
     async def _infer_answer(self, question: str, options: List[str] = None) -> str:
-        """Use LLM to infer the answer to a question based on Vamshi's profile."""
+        """Use LLM to infer the answer to a question based on the candidate profile."""
         profile_context = f"""Name: {MY_NAME}
 Skills: {MY_SKILLS}
 College: {MY_COLLEGE}

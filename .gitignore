@@ -1,11 +1,14 @@
 # Secrets
 .env
+.env.*
+!.env.example
 
 # Database
 *.db
 *.sqlite3
 
 # Browser artifacts
+.playwright_profiles/
 screenshots/
 logs/
 queue/
@@ -13,6 +16,7 @@ queue/
 *.png
 *.html
 *.json
+!*.example.json
 
 # Python
 __pycache__/
@@ -35,6 +39,11 @@ env/
 
 # Alembic
 db/migrations/versions/*.py
+
+# Generated reports and local state
+reports/output/
+saved_answers.json
+saved_linkedin_messages.json
 
 # OS
 .DS_Store
