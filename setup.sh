@@ -46,10 +46,6 @@ if [ ! -f ".env" ]; then
   echo ""
 fi
 
-# ── Create required directories ───────────────────────────────────────────
-mkdir -p screenshots logs queue/cookies reports/output
-echo "✅ Directories ready"
-
 # ── Run tests ─────────────────────────────────────────────────────────────
 echo ""
 echo "Running test suite..."

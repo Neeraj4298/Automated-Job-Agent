@@ -42,7 +42,7 @@ def send_email_alert(
             server.starttls()
             server.login(settings.smtp_user, settings.smtp_pass)
             server.sendmail(settings.smtp_user, settings.alert_email, msg.as_string())
-        logger.info(f"Email sent: {subject}")
+        logger.info("Email alert sent.")
         return True
     except Exception as e:
         logger.error(f"Email send failed: {type(e).__name__}")

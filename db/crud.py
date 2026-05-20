@@ -47,7 +47,7 @@ def insert_job(session: Session, job_data: Dict) -> AppliedJob:
     record = AppliedJob(**job_data)
     session.merge(record)       # merge = insert-or-update (idempotent)
     session.commit()
-    logger.debug(f"Inserted job record: {job_data.get('id', '?')[:12]}…")
+    logger.debug("Inserted job record.")
     return record
 
 
@@ -57,20 +57,17 @@ def update_job_status(
     status: str,
     note: str = "",
     application_id: str = "",
-    screenshot_path: str = "",
 ) -> None:
     """Update the status and optional fields of an existing job record."""
     record = session.query(AppliedJob).filter_by(id=job_id).first()
     if not record:
-        logger.warning(f"update_job_status: job {job_id[:12]}… not found")
+        logger.warning("update_job_status: job not found")
         return
     record.status = status
     if note:
         record.note = note
     if application_id:
         record.application_id = application_id
-    if screenshot_path:
-        record.screenshot_path = screenshot_path
     session.commit()
 
 
@@ -118,11 +115,11 @@ def add_to_queue(session: Session, job: Dict, scheduled_date: Optional[datetime]
     """Add a job to the queue if not already queued or applied."""
     job_id = job["id"]
     if job_exists(session, job_id):
-        logger.debug(f"Queue skip (already applied): {job_id[:12]}…")
+        logger.debug("Queue skip: already applied")
         return
     existing = session.query(JobQueue).filter_by(id=job_id).first()
     if existing:
-        logger.debug(f"Queue skip (already queued): {job_id[:12]}…")
+        logger.debug("Queue skip: already queued")
         return
     entry = JobQueue(
         id=job_id,
@@ -179,7 +176,7 @@ def create_session_log(session: Session) -> str:
     )
     session.add(log)
     session.commit()
-    logger.info(f"Session started: {session_id}")
+    logger.info("Session started.")
     return session_id
 
 
@@ -195,7 +192,7 @@ def update_session_log(
     """Update session statistics (call this incrementally or at end of session)."""
     log = session.query(SessionLog).filter_by(session_id=session_id).first()
     if not log:
-        logger.error(f"Session log not found: {session_id}")
+        logger.error("Session log not found.")
         return
     log.end_time = datetime.utcnow()
     log.total_applied = total_applied

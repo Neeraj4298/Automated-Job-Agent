@@ -44,7 +44,6 @@ class AppliedJob(Base):
     ats_platform = Column(String(64))               # Workday / Taleo / Generic…
     status = Column(String(32))                     # applied|failed|skipped|duplicate|blocked|unconfirmed
     note = Column(Text)
-    screenshot_path = Column(Text)
     resume_version = Column(String(128))
     cover_letter = Column(Text)
     application_id = Column(String(255))            # Confirmation ID from site

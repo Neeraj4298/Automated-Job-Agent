@@ -10,7 +10,6 @@ Provides an async context manager `BrowserEngine` that:
 """
 
 import asyncio
-from pathlib import Path
 from typing import Optional
 
 from loguru import logger
@@ -35,9 +34,6 @@ except ImportError:
 from browser.useragents import get_random_ua, get_random_viewport
 
 
-SCREENSHOTS_DIR = Path("screenshots")
-
-
 class BrowserEngine:
     """
     Async context manager wrapping a Playwright browser session.
@@ -59,8 +55,6 @@ class BrowserEngine:
         self._context: Optional[BrowserContext] = None
         self.user_agent: str = get_random_ua()
         self.viewport: dict = get_random_viewport()
-
-        SCREENSHOTS_DIR.mkdir(exist_ok=True)
 
     async def __aenter__(self) -> "BrowserEngine":
         self._playwright = await async_playwright().start()
@@ -119,35 +113,6 @@ class BrowserEngine:
                 await playwright_stealth.Stealth().apply_stealth_async(page)
         return page
 
-    # ── Cookie persistence ────────────────────────────────────────────
-
-    async def save_cookies(self, domain: str) -> None:
-        """Cookie export is intentionally disabled for public-repo safety."""
-        logger.debug("Cookie export disabled.")
-
-    async def load_cookies(self, domain: str) -> bool:
-        """Cookie import is intentionally disabled for public-repo safety."""
-        logger.debug("Cookie import disabled.")
-        return False
-
-    # ── Screenshots ───────────────────────────────────────────────────
-
-    async def take_screenshot(
-        self, page: Page, job_id: str, suffix: str = "state"
-    ) -> str:
-        """
-        Take a full-page screenshot and save to screenshots/.
-        Returns the relative path to the screenshot file.
-        """
-        filename = f"{job_id[:16]}_{suffix}.png"
-        path = SCREENSHOTS_DIR / filename
-        try:
-            logger.debug("Screenshot capture disabled.")
-            return ""
-        except Exception as e:
-            logger.warning(f"Screenshot failed: {type(e).__name__}")
-            return ""
-
     # ── File upload ───────────────────────────────────────────────────
 
     async def safe_file_upload(
@@ -200,7 +165,7 @@ class BrowserEngine:
             rp.parse(resp.text.splitlines())
             allowed = rp.can_fetch("*", url)
             if not allowed:
-                logger.warning(f"robots.txt blocks: {url}")
+                logger.warning("robots.txt blocks target URL.")
             return allowed
         except Exception:
             return True   # Fail open

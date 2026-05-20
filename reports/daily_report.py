@@ -57,7 +57,7 @@ def generate_csv_report(session_id: str) -> str:
                     j.application_id, j.job_url, j.note,
                 ])
 
-    logger.info(f"CSV report written: {csv_path}")
+    logger.info("CSV report written.")
     return str(csv_path)
 
 

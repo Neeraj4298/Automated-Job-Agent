@@ -27,7 +27,7 @@ async def send_telegram_alert(message: str) -> bool:
             text=f"🤖 *JobAgent Alert*\n\n{message}",
             parse_mode="Markdown",
         )
-        logger.info(f"Telegram alert sent: {message[:60]}…")
+        logger.info("Telegram alert sent.")
         return True
     except Exception as e:
         logger.error(f"Telegram alert failed: {type(e).__name__}")

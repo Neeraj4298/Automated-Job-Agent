@@ -93,7 +93,6 @@ job_agent/
 │       └── summary.html
 │
 ├── tests/                   # Pytest test suite
-├── screenshots/             # Auto-created (gitignored)
 ├── logs/                    # Rotating logs (gitignored)
 └── queue/                   # Overflow jobs (gitignored)
 ```

@@ -176,15 +176,15 @@ class LinkedInBot:
             pass
 
         if linkedin_url and linkedin_url in existing_urls:
-            logger.debug(f"Recruiter already in CSV (URL match): {name}")
+            logger.debug("Recruiter already in CSV (URL match).")
             return
         if email and email in existing_emails:
-            logger.debug(f"Recruiter already in CSV (email match): {name}")
+            logger.debug("Recruiter already in CSV (email match).")
             return
 
         with open(self.recruiters_csv, "a", newline="") as f:
             csv.writer(f).writerow([name, email, "", job_title, company, "", "New", "", linkedin_url])
-        logger.success(f"Saved recruiter → {name} | {company} | {linkedin_url or email}")
+        logger.success("Saved recruiter contact.")
 
     # ── Login ────────────────────────────────────────────────────────
 
@@ -473,7 +473,7 @@ class LinkedInBot:
         # ── Scenario C: email in JD ───────────────────────────────────
         emails = self._extract_emails(jd_text)
         if emails:
-            logger.success(f"📧 Scenario C — email found: {emails[0]}")
+            logger.success("Scenario C: recruiter email found.")
             self._save_recruiter("Recruiter", emails[0], job_title, company, linkedin_url="")
             if is_easy_apply:
                 await self._easy_apply(page, details, job_title, company)
@@ -599,19 +599,19 @@ Answer this job application question: "{question}"
                         
                         # If no answer found, ask the user!
                         if not answer:
-                            print(f"\n[?] LinkedIn asks: '{question}'")
+                            print("\n[?] LinkedIn screening question detected.")
                             
                             tag_name = await field.evaluate("el => el.tagName.toLowerCase()")
                             clean_options = None
                             if tag_name == "select":
                                 options = await field.locator("option").all_inner_texts()
                                 clean_options = [opt.strip() for opt in options if opt.strip() and opt.strip() != "Select an option"]
-                                print(f"Options available: {clean_options}")
+                                print(f"{len(clean_options)} options are available in the browser.")
                             
                             llm_suggestion = await self._infer_answer(question, clean_options)
                             if llm_suggestion:
-                                print(f"  🤖 LLM suggests: '{llm_suggestion}'")
-                                prompt_msg = f"Your answer (press Enter to accept '{llm_suggestion}', or type your own): "
+                                print("A suggested answer is available.")
+                                prompt_msg = "Your answer (press Enter to accept suggestion, or type your own): "
                             else:
                                 prompt_msg = "Your answer (or press Enter to skip): "
                             
@@ -668,7 +668,7 @@ Answer this job application question: "{question}"
                                     break
                             
                             if not answer:
-                                print(f"\n[?] LinkedIn asks (Radio): '{question}'")
+                                print("\n[?] LinkedIn radio screening question detected.")
                                 try:
                                     user_input = await asyncio.to_thread(input, "Your answer (or press Enter to skip): ")
                                     user_input = user_input.strip()
@@ -829,7 +829,7 @@ Answer this job application question: "{question}"
                 "button:has-text('Message')"
             ).first
             if not await msg_btn.is_visible():
-                logger.warning(f"Message button not visible for {name}; skipping DM.")
+                logger.warning("Message button not visible; skipping DM.")
                 return
 
             await msg_btn.click(delay=random.randint(50, 150))
@@ -849,7 +849,7 @@ Answer this job application question: "{question}"
                 ).first
                 if await send_btn.is_visible():
                     await send_btn.click(delay=random.randint(50, 150))
-                    logger.success(f"📨 Sent {action_label} to {name}.")
+                    logger.success("DM sent.")
                 else:
                     logger.warning("Send button not found in DM composer.")
             else:
@@ -971,7 +971,7 @@ Answer this job application question: "{question}"
                     ).first
                     if await send.is_visible():
                         await send.click(delay=random.randint(50, 150))
-                        logger.success(f"✉️  Connection request sent to {full_name} ({profile_type}).")
+                        logger.success("Connection request sent.")
                     else:
                         logger.warning("Send button not found in connection modal.")
                 else:
@@ -984,9 +984,9 @@ Answer this job application question: "{question}"
                 msg_visible = await cp.locator("button:has-text('Message')").first.is_visible()
                 if msg_visible:
                     already_connected = True
-                    logger.info(f"Already connected with {full_name}. Will send DM directly.")
+                    logger.info("Already connected; sending DM directly.")
                 else:
-                    logger.warning(f"Connect button not found for {clean_url}.")
+                    logger.warning("Connect button not found.")
 
             # ── DM (referral / schedule) ──────────────────────────────
             if send_dm_after and already_connected:

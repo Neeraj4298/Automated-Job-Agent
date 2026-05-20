@@ -244,8 +244,8 @@ class NaukriBot:
                     answer = self.session_answers[last_bot_msg]
                     logger.info("Found saved screening answer.")
                 else:
-                    print(f"\n[?] Chatbot asks: '{last_bot_msg}'")
-                    print(f"Options available: {opt_texts}")
+                    print("\n[?] Chatbot screening question detected.")
+                    print(f"{len(opt_texts)} options are available in the browser.")
                     try:
                         loop = asyncio.get_event_loop()
                         user_answer = await loop.run_in_executor(None, input, "Your choice (type exactly as shown): ")
@@ -271,7 +271,7 @@ class NaukriBot:
                     answer = self.session_answers[last_bot_msg]
                     logger.info("Found saved screening answer.")
                 else:
-                    print(f"\n[?] Chatbot asks: '{last_bot_msg}'")
+                    print("\n[?] Chatbot screening question detected.")
                     try:
                         loop = asyncio.get_event_loop()
                         user_answer = await loop.run_in_executor(None, input, "Please provide the answer: ")

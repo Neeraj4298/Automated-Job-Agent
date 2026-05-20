@@ -11,7 +11,6 @@ import argparse
 import os
 import random
 import sys
-import json
 import asyncio
 from datetime import datetime
 from pathlib import Path
@@ -27,19 +26,11 @@ sys.path.insert(0, str(PROJECT_ROOT.parent))
 load_dotenv()
 
 # Logging setup
-Path("logs").mkdir(exist_ok=True)
 logger.remove()
 logger.add(
     sys.stdout,
     level="INFO",
     format="<green>{time:HH:mm:ss}</green> | <level>{level}</level> | {message}",
-)
-logger.add(
-    "logs/agent_{time:YYYY-MM-DD}.log",
-    rotation="00:00",
-    retention="14 days",
-    level="DEBUG",
-    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{line} | {message}",
 )
 
 
@@ -78,20 +69,11 @@ class AgentRunner:
 
     def get_user_profile(self) -> Dict[str, Any]:
         """Builds and returns the master candidate profile dictionary from settings."""
-        saved_answers_path = PROJECT_ROOT / "saved_answers.json"
-        saved_answers = {}
-        if saved_answers_path.exists():
-            try:
-                with open(saved_answers_path, "r") as f:
-                    saved_answers = json.load(f)
-            except Exception as e:
-                logger.warning(f"Could not load saved answers: {type(e).__name__}")
-
         return {
             "full_name": self.settings.full_name,
             "email": self.settings.email,
             "phone": self.settings.phone,
-            "saved_answers": saved_answers,
+            "saved_answers": {},
             "location": self.settings.location,
             "linkedin_url": self.settings.linkedin_url,
             "github_url": self.settings.github_url,

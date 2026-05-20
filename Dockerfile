@@ -22,8 +22,5 @@ RUN playwright install --with-deps chromium
 # Copy project
 COPY . .
 
-# Create required directories
-RUN mkdir -p screenshots logs queue/cookies reports/output
-
 # Run the scheduler by default
 CMD ["python", "main.py"]
