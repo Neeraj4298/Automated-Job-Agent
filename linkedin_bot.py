@@ -1,6 +1,5 @@
 import asyncio
 import csv
-import json
 import random
 import re
 import sys
@@ -121,15 +120,7 @@ class LinkedInBot:
             "Data Engineer",
         ]
         self.recruiters_csv = PROJECT_ROOT.parent / "recruiter_outreach" / "recruiters.csv"
-        self.saved_messages_path = PROJECT_ROOT / "saved_linkedin_messages.json"
-        self.saved_answers_path = PROJECT_ROOT / "saved_answers.json"
         self.saved_answers = {}
-        if self.saved_answers_path.exists():
-            try:
-                with open(self.saved_answers_path, "r") as f:
-                    self.saved_answers = json.load(f)
-            except Exception as e:
-                logger.warning(f"Could not load saved answers: {type(e).__name__}")
         self._ensure_csv_exists()
         self.llm = LLMClient()
 
@@ -635,9 +626,7 @@ Answer this job application question: "{question}"
                                     
                                 if answer:
                                     self.saved_answers[question.replace("*", "").strip()] = answer
-                                    with open(self.saved_answers_path, "w") as f:
-                                        json.dump(self.saved_answers, f, indent=4)
-                                    logger.success("Saved new screening answer.")
+                                    logger.success("Stored screening answer for this run.")
                             except BaseException as be:
                                 logger.debug(f"Input interrupted: {type(be).__name__}")
 
@@ -686,9 +675,7 @@ Answer this job application question: "{question}"
                                     if user_input:
                                         answer = user_input
                                         self.saved_answers[question.replace("*", "").strip()] = answer
-                                        with open(self.saved_answers_path, "w") as f:
-                                            json.dump(self.saved_answers, f, indent=4)
-                                        logger.success("Saved new screening answer.")
+                                        logger.success("Stored screening answer for this run.")
                                 except BaseException as be:
                                     logger.debug(f"Input interrupted: {type(be).__name__}")
                                     

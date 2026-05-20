@@ -1,6 +1,5 @@
 import asyncio
 import csv
-import json
 import re
 import sys
 from pathlib import Path
@@ -33,7 +32,7 @@ class NaukriBot:
             'Python AND (Dask OR Spark) AND ETL AND Databricks AND Pandas'
         ]
         self.recruiters_csv = PROJECT_ROOT.parent / "recruiter_outreach" / "recruiters.csv"
-        self.saved_answers_path = PROJECT_ROOT / "saved_answers.json"
+        self.session_answers = {}
         
         self._ensure_csv_exists()
 
@@ -195,7 +194,7 @@ class NaukriBot:
                 break
                 
             last_bot_msg = await bot_msgs[-1].inner_text()
-            logger.info(f"Chatbot asks: {last_bot_msg}")
+            logger.info("Chatbot screening question detected.")
             
             if "successfully applied" in last_bot_msg.lower() or "application submitted" in last_bot_msg.lower() or "thank you" in last_bot_msg.lower():
                 logger.success("Successfully applied via chatbot.")
@@ -239,15 +238,10 @@ class NaukriBot:
                         options.append(opt)
                         opt_texts.append(t.strip())
                     
-            saved_data = {}
-            if self.saved_answers_path.exists():
-                with open(self.saved_answers_path, "r") as f:
-                    saved_data = json.load(f)
-
             if options:
                 logger.info("Screening options available.")
-                if last_bot_msg in saved_data and saved_data[last_bot_msg] in opt_texts:
-                    answer = saved_data[last_bot_msg]
+                if last_bot_msg in self.session_answers and self.session_answers[last_bot_msg] in opt_texts:
+                    answer = self.session_answers[last_bot_msg]
                     logger.info("Found saved screening answer.")
                 else:
                     print(f"\n[?] Chatbot asks: '{last_bot_msg}'")
@@ -259,12 +253,7 @@ class NaukriBot:
                     except EOFError:
                         answer = opt_texts[0] if opt_texts else ""
                     
-                    try:
-                        saved_data[last_bot_msg] = answer
-                        with open(self.saved_answers_path, "w") as f:
-                            json.dump(saved_data, f, indent=4)
-                    except Exception as e:
-                        logger.error(f"Failed to save answer: {type(e).__name__}")
+                    self.session_answers[last_bot_msg] = answer
                 
                 if answer and answer in opt_texts:
                     idx = opt_texts.index(answer)
@@ -278,8 +267,8 @@ class NaukriBot:
                     await send_btn.click(force=True)
                     
             elif input_box and await input_box.is_visible():
-                if last_bot_msg in saved_data:
-                    answer = saved_data[last_bot_msg]
+                if last_bot_msg in self.session_answers:
+                    answer = self.session_answers[last_bot_msg]
                     logger.info("Found saved screening answer.")
                 else:
                     print(f"\n[?] Chatbot asks: '{last_bot_msg}'")
@@ -290,12 +279,7 @@ class NaukriBot:
                     except EOFError:
                         answer = "Not Applicable"
                     
-                    try:
-                        saved_data[last_bot_msg] = answer
-                        with open(self.saved_answers_path, "w") as f:
-                            json.dump(saved_data, f, indent=4)
-                    except Exception as e:
-                        logger.error(f"Failed to save answer: {type(e).__name__}")
+                    self.session_answers[last_bot_msg] = answer
                     
                 await input_box.fill(str(answer))
                 send_btn = active_context.locator(".send-icon, .send-btn, button[title='Send'], [class*='sendIcon'], [class*='sendBtn'], button[class*='send']").first
