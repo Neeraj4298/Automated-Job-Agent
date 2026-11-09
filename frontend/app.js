@@ -12,7 +12,32 @@
 (() => {
   "use strict";
 
-  const PROTECTED_VIEWS = new Set(["onboarding", "overview", "queue", "ledger", "profile", "security"]);
+  const PROTECTED_VIEWS = new Set([
+    "onboarding",
+    "overview",
+    "discover",
+    "ledger",
+    "queue",
+    "outreach",
+    "agents",
+    "analytics",
+    "activity",
+    "profile",
+    "security",
+  ]);
+
+  const VIEW_BREADCRUMBS = {
+    overview: "Workspace / Overview",
+    discover: "Workspace / Discover Jobs",
+    ledger: "Workspace / Applications",
+    queue: "Workspace / Priority Queue",
+    outreach: "Workspace / Recruiter Outreach",
+    agents: "Automation / AI Agents",
+    analytics: "Automation / Analytics",
+    activity: "Automation / Activity & Logs",
+    profile: "Preferences / My Profile & CV",
+    security: "Preferences / Settings",
+  };
 
   const state = {
     theme: "dark",
@@ -24,6 +49,10 @@
     selectedMode: "dry_run",
     statusFilter: "all",
     searchQuery: "",
+    discoverQuery: "",
+    discoverMode: "all",
+    selectedDiscoverId: null,
+    logFilter: "ALL",
     overview: null,
     jobs: [],
     queue: [],
@@ -160,10 +189,11 @@
         panel.hidden = !isMatch;
         panel.classList.toggle("is-active", isMatch);
       });
-      syncAuthUI();
-      if (state.authenticated) {
-        window.requestAnimationFrame(syncNavGlider);
+      const bc = document.getElementById("topbar-breadcrumb");
+      if (bc) {
+        bc.textContent = VIEW_BREADCRUMBS[viewName] || "AI Career Agent v2.5";
       }
+      syncAuthUI();
     };
 
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -174,7 +204,7 @@
     }
   }
 
-  /* Render Overview KPIs, Chart, ATS Breakdown, Terminal, and Recent Jobs */
+  /* Render Overview KPIs, Discover Jobs, Analytics, Terminal, and Recent Jobs */
   function renderOverview(data) {
     if (!data) return;
     state.overview = data;
@@ -185,19 +215,30 @@
       if (el) el.textContent = val;
     };
 
+    setText("kpi-discovered", m.jobs_discovered ?? 0);
     setText("kpi-applied", m.total_applied ?? 0);
+    setText("kpi-interviews", m.interviews ?? 0);
     setText("kpi-quota-badge", `${m.today_applied ?? 0} / ${m.daily_max ?? 30} daily cap`);
-    setText("kpi-success-rate", `${m.success_rate ?? 100}%`);
+    setText("kpi-success-rate", `${m.offers ?? 0} Offers`);
     setText("kpi-queue", m.pending_queue ?? 0);
     setText("nav-queue-badge", m.pending_queue ?? 0);
     setText("kpi-skipped", (m.total_skipped ?? 0) + (m.total_failed ?? 0));
-    setText("kpi-failed-tag", `${m.total_failed ?? 0} CAPTCHA / Gate`);
+    setText("kpi-failed-tag", `${m.total_failed ?? 0} Attention`);
+
+    /* Analytics Screen Metrics */
+    setText("an-discovered", m.jobs_discovered ?? 0);
+    setText("an-confirmed", m.total_applied ?? 0);
+    setText("an-interviews", m.interviews ?? 0);
+    setText("an-conversion", `${m.success_rate ?? 0}%`);
 
     renderVelocityChart(data.daily_series || []);
-    renderAtsBreakdown(data.ats_breakdown || [], m.total_records || 1);
+    renderAtsBreakdown(data.ats_breakdown || [], m.total_records || 1, "ats-breakdown-list");
+    renderAtsBreakdown(data.ats_breakdown || [], m.total_records || 1, "analytics-ats-list");
+    renderAtsBreakdown(data.source_breakdown || [], m.total_records || 1, "analytics-source-list");
     renderRuntime(data.runtime);
     renderRecentTable(data.recent_jobs || []);
     renderRecruitersTable(data.recruiters || []);
+    renderDiscoverJobs(data.discovered_jobs || []);
   }
 
   function renderRecruitersTable(recruiters) {
@@ -256,11 +297,11 @@
     container.innerHTML = `<div class="bar-chart-grid">${barsHtml}</div>`;
   }
 
-  function renderAtsBreakdown(items, total) {
-    const container = document.getElementById("ats-breakdown-list");
+  function renderAtsBreakdown(items, total, targetId = "ats-breakdown-list") {
+    const container = document.getElementById(targetId);
     if (!container) return;
     if (!items.length) {
-      container.innerHTML = `<p class="text-muted">No ATS data recorded yet.</p>`;
+      container.innerHTML = `<p class="text-muted">No platform data recorded yet.</p>`;
       return;
     }
     container.innerHTML = items
@@ -279,6 +320,105 @@
         `;
       })
       .join("");
+  }
+
+  function renderDiscoverJobs(catalog) {
+    const listEl = document.getElementById("discover-jobs-list");
+    const detailEl = document.getElementById("discover-detail-panel");
+    if (!listEl || !detailEl) return;
+
+    const q = (state.discoverQuery || "").toLowerCase();
+    const modeF = state.discoverMode || "all";
+    const filtered = catalog.filter((job) => {
+      if (modeF !== "all" && job.work_mode !== modeF) return false;
+      if (!q) return true;
+      return (
+        (job.job_title || "").toLowerCase().includes(q) ||
+        (job.company || "").toLowerCase().includes(q) ||
+        (job.required_skills || []).join(" ").toLowerCase().includes(q)
+      );
+    });
+
+    if (!filtered.length) {
+      listEl.innerHTML = `<div class="panel-card"><p class="text-muted">No discovered jobs match your current filters.</p></div>`;
+      detailEl.innerHTML = `<p class="text-muted">Select a job on the left to inspect its AI match breakdown.</p>`;
+      return;
+    }
+
+    if (!state.selectedDiscoverId || !filtered.some((j) => j.id === state.selectedDiscoverId)) {
+      state.selectedDiscoverId = filtered[0].id;
+    }
+
+    listEl.innerHTML = filtered
+      .map((j) => {
+        const isSel = j.id === state.selectedDiscoverId;
+        return `
+          <article class="v25-job-card ${isSel ? "is-selected" : ""}" data-discover-id="${escapeHtml(j.id)}" role="listitem">
+            <div class="v25-job-card-head">
+              <div>
+                <strong class="cell-primary">${escapeHtml(j.job_title)}</strong>
+                <span class="cell-sub">${escapeHtml(j.company)} · ${escapeHtml(j.location)}</span>
+              </div>
+              <span class="kpi-tag kpi-tag--emerald">${j.overall_score}% Match</span>
+            </div>
+            <div class="v25-job-card-meta">
+              <span>Source: ${escapeHtml(j.source)}</span>
+              <span>·</span>
+              <span>ATS: ${escapeHtml(j.ats_platform)}</span>
+              <span>·</span>
+              <span>Exp: ${escapeHtml(j.experience_req)}</span>
+              <span>·</span>
+              <span>${escapeHtml(j.salary_range)}</span>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    const selected = filtered.find((j) => j.id === state.selectedDiscoverId) || filtered[0];
+    const scoreBar = (label, val) => `
+      <div class="v25-score-row">
+        <div class="v25-score-meta"><span>${label}</span><span class="mono-num">${val}%</span></div>
+        <div class="ats-row__bar"><div class="ats-row__fill" style="transform: scaleX(${val / 100})"></div></div>
+      </div>
+    `;
+
+    detailEl.innerHTML = `
+      <div class="panel-card__head">
+        <div>
+          <span class="kpi-tag kpi-tag--blue">${escapeHtml(selected.ats_platform)} · ${escapeHtml(selected.source)}</span>
+          <h3 class="panel-title" style="margin-top: 8px;">${escapeHtml(selected.job_title)}</h3>
+          <p class="panel-subtitle">${escapeHtml(selected.company)} · ${escapeHtml(selected.location)} · ${escapeHtml(selected.salary_range)}</p>
+        </div>
+        <span class="kpi-tag kpi-tag--emerald">${selected.overall_score}% Overall</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.55;">${escapeHtml(selected.description)}</p>
+      <div class="v25-score-grid" aria-label="Candidate Match Breakdown">
+        <strong style="font-size: 12px; color: var(--text-primary);">Candidate Qualification Breakdown</strong>
+        ${scoreBar("Skill Alignment", selected.skill_score)}
+        ${scoreBar("Experience Alignment", selected.exp_score)}
+        ${scoreBar("Responsibilities Alignment", selected.resp_score)}
+        ${scoreBar("Location Compatibility", selected.loc_score)}
+        ${scoreBar("Salary Compatibility", selected.sal_score)}
+      </div>
+      <div style="margin-bottom: 14px;">
+        <span class="cell-sub">Matching Skills:</span>
+        <div class="v25-skill-chips">
+          ${(selected.matching_skills || []).map((s) => `<span class="kpi-tag kpi-tag--emerald">${escapeHtml(s)}</span>`).join("")}
+        </div>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <span class="cell-sub">Missing / Growth Skills:</span>
+        <div class="v25-skill-chips">
+          ${(selected.missing_skills || []).map((s) => `<span class="kpi-tag kpi-tag--amber">${escapeHtml(s)}</span>`).join("")}
+        </div>
+      </div>
+      <div class="row-actions">
+        <button type="button" class="btn btn--primary btn--sm" data-discover-queue="${escapeHtml(selected.id)}">Add to Priority Queue</button>
+        <button type="button" class="btn btn--accent btn--sm" data-discover-apply="${escapeHtml(selected.id)}">Prepare &amp; Apply</button>
+        <a href="${escapeHtml(selected.job_url)}" target="_blank" rel="noopener noreferrer" class="btn btn--subtle btn--sm">Source ↗</a>
+      </div>
+    `;
   }
 
   function renderRuntime(runtime) {
@@ -301,12 +441,16 @@
     if (runBtn) runBtn.disabled = isRunning;
     if (stopBtn) stopBtn.hidden = !isRunning;
     if (pulseDot) pulseDot.classList.toggle("is-running", isRunning);
-    if (stateLabel) stateLabel.textContent = isRunning ? "Session Active" : "Agent Armed";
+    if (stateLabel) stateLabel.textContent = isRunning ? "Agent Running" : "Agent Idle";
     if (termBadge) termBadge.textContent = (runtime.mode || "dry_run").toUpperCase();
 
     const term = document.getElementById("live-terminal");
     if (term && Array.isArray(runtime.logs)) {
-      term.innerHTML = runtime.logs
+      const filteredLogs = runtime.logs.filter((log) => {
+        if (!state.logFilter || state.logFilter === "ALL") return true;
+        return (log.level || "INFO").toUpperCase() === state.logFilter;
+      });
+      term.innerHTML = filteredLogs
         .map(
           (log) => `
           <div class="term-line">
@@ -446,6 +590,19 @@
       const el = document.getElementById(id);
       if (el) el.value = val ?? "";
     };
+
+    const sideName = document.getElementById("sidebar-user-name");
+    const sideAvatar = document.getElementById("sidebar-user-avatar");
+    if (sideName && p.full_name) sideName.textContent = p.full_name;
+    if (sideAvatar && p.full_name) {
+      const initials = p.full_name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w) => w[0].toUpperCase())
+        .join("");
+      sideAvatar.textContent = initials || "OP";
+    }
 
     setVal("cfg-full-name", p.full_name);
     setVal("cfg-email", p.email);
@@ -723,23 +880,87 @@
       });
     });
 
-    /* Launch / Stop Agent Session */
+    /* Launch / Stop Agent Session (with Live Auto Confirmation Dialog) */
+    const executeAgentStart = async () => {
+      try {
+        await fetchJson("/api/agent/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: state.selectedMode }),
+        });
+        showToast(`Agent launched in ${state.selectedMode.toUpperCase()} mode.`);
+        await refreshAll();
+      } catch (_e) {
+        showToast("Failed to start agent session.", "rose");
+      }
+    };
+
+    const confirmBackdrop = document.getElementById("confirm-dialog-backdrop");
+    const confirmCancel = document.getElementById("btn-confirm-cancel");
+    const confirmProceed = document.getElementById("btn-confirm-proceed");
+
+    if (confirmCancel && confirmBackdrop) {
+      confirmCancel.addEventListener("click", () => {
+        confirmBackdrop.hidden = true;
+      });
+    }
+    if (confirmProceed && confirmBackdrop) {
+      confirmProceed.addEventListener("click", async () => {
+        confirmBackdrop.hidden = true;
+        await executeAgentStart();
+      });
+    }
+
     const runBtn = document.getElementById("btn-run-agent");
     if (runBtn) {
       runBtn.addEventListener("click", async () => {
-        try {
-          await fetchJson("/api/agent/run", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mode: state.selectedMode }),
-          });
-          showToast(`Agent launched in ${state.selectedMode.toUpperCase()} mode.`);
-          await refreshAll();
-        } catch (_e) {
-          showToast("Failed to start agent session.", "rose");
+        if (state.selectedMode === "live" && confirmBackdrop) {
+          confirmBackdrop.hidden = false;
+          return;
         }
+        await executeAgentStart();
       });
     }
+
+    /* Sidebar Collapse & Brand Home */
+    const collapseBtn = document.getElementById("btn-collapse-sidebar");
+    const sidebarEl = document.getElementById("protected-nav");
+    if (collapseBtn && sidebarEl) {
+      collapseBtn.addEventListener("click", () => {
+        sidebarEl.classList.toggle("is-collapsed");
+      });
+    }
+    const sidebarBrand = document.getElementById("sidebar-brand-home");
+    if (sidebarBrand) {
+      sidebarBrand.addEventListener("click", () => switchView("overview"));
+    }
+
+    /* Discover Jobs Filters */
+    const discSearch = document.getElementById("discover-search-input");
+    if (discSearch) {
+      discSearch.addEventListener("input", () => {
+        state.discoverQuery = discSearch.value.trim();
+        renderDiscoverJobs(state.overview?.discovered_jobs || []);
+      });
+    }
+    const discMode = document.getElementById("discover-mode-filter");
+    if (discMode) {
+      discMode.addEventListener("change", () => {
+        state.discoverMode = discMode.value;
+        renderDiscoverJobs(state.overview?.discovered_jobs || []);
+      });
+    }
+
+    /* Activity Log Filter Chips */
+    document.querySelectorAll("[data-log-filter]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        state.logFilter = chip.getAttribute("data-log-filter") || "ALL";
+        document.querySelectorAll("[data-log-filter]").forEach((c) => c.classList.toggle("is-active", c === chip));
+        if (state.overview?.runtime) {
+          renderRuntime(state.overview.runtime);
+        }
+      });
+    });
 
     const stopBtn = document.getElementById("btn-stop-agent");
     if (stopBtn) {
@@ -1243,6 +1464,50 @@
         });
         renderOverview(res.overview);
         showToast(`Cold email dispatched to ${res.email} with your stored CV!`);
+        return;
+      }
+
+      const discCard = e.target.closest("[data-discover-id]");
+      if (discCard) {
+        state.selectedDiscoverId = discCard.getAttribute("data-discover-id");
+        renderDiscoverJobs(state.overview?.discovered_jobs || []);
+        return;
+      }
+
+      const discQueueBtn = e.target.closest("[data-discover-queue]");
+      if (discQueueBtn) {
+        const did = discQueueBtn.getAttribute("data-discover-queue");
+        const job = (state.overview?.discovered_jobs || []).find((j) => j.id === did);
+        if (job) {
+          await fetchJson("/api/queue", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              job_title: job.job_title,
+              company: job.company,
+              job_url: job.job_url,
+              priority: 1,
+            }),
+          });
+          showToast(`Added '${job.job_title}' at ${job.company} to Priority Queue!`);
+          await refreshAll();
+        }
+        return;
+      }
+
+      const discApplyBtn = e.target.closest("[data-discover-apply]");
+      if (discApplyBtn) {
+        const did = discApplyBtn.getAttribute("data-discover-apply");
+        const job = (state.overview?.discovered_jobs || []).find((j) => j.id === did);
+        if (job) {
+          await fetchJson("/api/agent/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mode: "single_link", target_url: job.job_url }),
+          });
+          showToast(`Preparing & applying to '${job.job_title}' at ${job.company}...`);
+          await refreshAll();
+        }
       }
     });
 
