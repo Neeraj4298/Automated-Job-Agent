@@ -91,8 +91,8 @@ class AgentRunner:
             "us_citizen": False,
         }
 
-    def execute_session(self) -> None:
-        """Execute one full agent session."""
+    def execute_session(self, single_job_link: Any = False) -> Dict[str, Any]:
+        """Execute one full agent session across Naukri and LinkedIn with real statistics."""
         start_time = datetime.utcnow()
         logger.info("=" * 60)
         logger.info(f"🤖 Job Agent session starting at {start_time.strftime('%Y-%m-%d %H:%M:%S UTC')}")
@@ -107,9 +107,7 @@ class AgentRunner:
         with self.SessionLocal() as db_session:
             session_id = create_session_log(db_session)
 
-        user_profile = self.get_user_profile()
-        
-        session_stats = {
+        session_stats: Dict[str, Any] = {
             "session_id": session_id,
             "total_applied": 0,
             "total_skipped": 0,
@@ -119,14 +117,52 @@ class AgentRunner:
             "domain_counts": {},
         }
 
+        def _merge_bot_stats(bot_stats: Any) -> None:
+            if not isinstance(bot_stats, dict):
+                return
+            session_stats["total_applied"] += int(bot_stats.get("total_applied", 0) or 0)
+            session_stats["total_skipped"] += int(bot_stats.get("total_skipped", 0) or 0)
+            session_stats["total_failed"] += int(bot_stats.get("total_failed", 0) or 0)
+            for domain in bot_stats.get("sites_blocked", []) or []:
+                if domain not in session_stats["sites_blocked"]:
+                    session_stats["sites_blocked"].append(domain)
+
+        async def _run_all_bots() -> None:
+            if single_job_link:
+                from linkedin_bot import LinkedInBot
+                link_arg = single_job_link if isinstance(single_job_link, str) else True
+                li_bot = LinkedInBot(single_job_link=link_arg)
+                li_stats = await li_bot.run()
+                _merge_bot_stats(li_stats)
+                return
+
+            # 1. Execute Naukri Bot
+            try:
+                from naukri_bot import NaukriBot
+                logger.info("Starting Naukri Bot execution…")
+                naukri_bot = NaukriBot()
+                naukri_stats = await naukri_bot.run()
+                _merge_bot_stats(naukri_stats)
+            except BaseException as e:
+                logger.error(f"Naukri Bot execution error: {type(e).__name__}")
+                session_stats["total_failed"] += 1
+
+            # 2. Execute LinkedIn Bot
+            try:
+                from linkedin_bot import LinkedInBot
+                logger.info("Starting LinkedIn Bot execution…")
+                linkedin_bot = LinkedInBot()
+                linkedin_stats = await linkedin_bot.run()
+                _merge_bot_stats(linkedin_stats)
+            except BaseException as e:
+                logger.error(f"LinkedIn Bot execution error: {type(e).__name__}")
+                session_stats["total_failed"] += 1
+
         try:
-            from naukri_bot import NaukriBot
-            logger.info("Starting Naukri Bot execution…")
-            bot = NaukriBot()
-            asyncio.run(bot.run())
-            session_stats["total_applied"] = 1  # Dummy update as logic is inside bot
+            asyncio.run(_run_all_bots())
         except BaseException as e:
-            logger.error(f"Naukri Bot execution error: {type(e).__name__}")
+            logger.error(f"Session execution error: {type(e).__name__}")
+            session_stats["total_failed"] += 1
 
         end_time = datetime.utcnow()
         duration = (end_time - start_time).seconds // 60
@@ -149,6 +185,8 @@ class AgentRunner:
 
         if not self.settings.debug_mode:
             self._send_reports(session_id, session_stats)
+
+        return session_stats
 
     def _send_reports(self, session_id: str, stats: Dict[str, Any]) -> None:
         """Generate reports and send email alerts."""
@@ -202,7 +240,10 @@ if __name__ == "__main__":
 
     runner = AgentRunner(dry_run=args.dry_run)
 
-    if args.dry_run:
+    if args.link:
+        logger.info("SINGLE LINK mode")
+        runner.execute_session(single_job_link=args.link)
+    elif args.dry_run:
         logger.info("DRY RUN mode — no real form submissions")
         runner.execute_session()
     elif args.run_once:

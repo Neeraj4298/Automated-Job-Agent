@@ -23,8 +23,8 @@ class NaukriBot:
     Autonomous bot for applying to jobs on Naukri using Playwright.
     """
 
-    def __init__(self):
-        """Initialize the bot, load credentials and verify paths."""
+    def __init__(self, llm_client: Optional[LLMClient] = None):
+        """Initialize the bot, load credentials, initialize AI client and real stats."""
         self.creds = settings.get_credentials("naukri.com")
         self.queries = [
             'Python AND (FastAPI OR Flask) AND ("Generative AI" OR LLM OR RAG)',
@@ -33,8 +33,64 @@ class NaukriBot:
         ]
         self.recruiters_csv = PROJECT_ROOT.parent / "recruiter_outreach" / "recruiters.csv"
         self.session_answers = {}
-        
+        self.llm_client = llm_client
+        self.stats = {
+            "total_applied": 0,
+            "total_skipped": 0,
+            "total_failed": 0,
+            "sites_blocked": [],
+        }
+
         self._ensure_csv_exists()
+
+    def get_user_profile(self) -> dict:
+        """Build candidate profile dict dynamically from runtime settings."""
+        return {
+            "full_name": settings.full_name,
+            "email": settings.email,
+            "phone": settings.phone,
+            "location": settings.location,
+            "linkedin_url": settings.linkedin_url,
+            "github_url": settings.github_url,
+            "roles": settings.roles_list,
+            "experience_range": settings.experience_range,
+            "location_filter": settings.location_filter,
+            "allow_contract": settings.allow_contract,
+            "allow_internship": settings.allow_internship,
+            "skills_summary": settings.skills_summary,
+            "achievements": settings.achievements,
+            "work_authorization": settings.work_authorization,
+            "salary_expectation": settings.salary_expectation,
+            "willing_to_relocate": settings.willing_to_relocate,
+            "available_start_date": settings.available_start_date,
+        }
+
+    def qualify_job(self, job_title: str, company: str, jd_text: str) -> dict:
+        """
+        Evaluate job suitability using the AI qualification engine (`qualify_prompt` + `LLMClient`).
+        Returns a dict with at least `{"pass": bool, "reason": str}`.
+        """
+        client = self.llm_client or LLMClient()
+        self.llm_client = client
+        full_jd = f"Job Title: {job_title}\nCompany: {company}\n\n{jd_text or ''}".strip()
+        try:
+            result = client.call(
+                "qualify",
+                job_description=full_jd,
+                user_profile=self.get_user_profile(),
+            )
+            if isinstance(result, dict):
+                if result.get("action") == "halt" or result.get("flag") is True:
+                    return {"pass": False, "reason": result.get("reason", "Flagged by AI safety rules")}
+                return {
+                    "pass": bool(result.get("pass", False)),
+                    "reason": str(result.get("reason", "")),
+                }
+        except Exception as e:
+            logger.warning(f"AI qualification call failed ({type(e).__name__}); skipping safely.")
+            return {"pass": False, "reason": f"AI qualification error: {type(e).__name__}"}
+
+        return {"pass": False, "reason": "No qualification response from LLM"}
 
     def _ensure_csv_exists(self) -> None:
         """Ensure the recruiter CSV exists with correct headers."""
@@ -410,10 +466,12 @@ class NaukriBot:
         
         if "accenture" in company.lower():
             logger.info("Skipping blocked company.")
+            self.stats["total_skipped"] += 1
             return
             
         job_url = await title_elem.get_attribute("href")
         if not job_url:
+            self.stats["total_skipped"] += 1
             return
             
         job_page = await page.context.new_page()
@@ -427,6 +485,15 @@ class NaukriBot:
             jd_locator = job_page.locator("div.danger-html")
             
         jd_text = await jd_locator.inner_text() if await jd_locator.is_visible() else ""
+
+        # P0 Fix: Evaluate job with AI qualification engine before applying
+        qual = self.qualify_job(job_title, company, jd_text)
+        if not qual.get("pass", False):
+            logger.info(f"AI qualification skipped '{job_title}' at '{company}': {qual.get('reason')}")
+            self.stats["total_skipped"] += 1
+            await job_page.close()
+            return
+
         emails = await self._extract_emails(jd_text)
         
         if emails:
@@ -440,6 +507,7 @@ class NaukriBot:
     def _handle_scenario_a(self, job_title: str, company: str, email: str) -> None:
         """Handle Scenario A: Recruiter email is present."""
         logger.success("Scenario A: recruiter email found; skipping apply.")
+        self.stats["total_skipped"] += 1
         with open(self.recruiters_csv, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["Recruiter", email, job_title, company])
@@ -453,7 +521,13 @@ class NaukriBot:
         
         if await apply_on_company_btn.is_visible():
             logger.info("Job points to an external site. Skipping external application.")
+            self.stats["total_skipped"] += 1
         elif await apply_btn.is_visible():
+            if settings.debug_mode:
+                logger.info(f"[DRY RUN] Would apply to '{job_title}' at '{company}' — skipping click.")
+                self.stats["total_skipped"] += 1
+                return
+
             await async_sleep(pre_apply_delay())
             await apply_btn.click()
             await async_sleep(page_load_buffer())
@@ -464,26 +538,32 @@ class NaukriBot:
             
             if await success_msg.is_visible(timeout=2000) or await success_msg_2.is_visible(timeout=2000):
                 logger.success("Successfully applied.")
+                self.stats["total_applied"] += 1
             else:
                 applied_btn = job_page.locator("button:has-text('Applied')").first
                 if await applied_btn.is_visible(timeout=2000) or await success_msg_3.is_visible(timeout=2000):
                     logger.success("Successfully applied.")
+                    self.stats["total_applied"] += 1
                 else:
                     chatbot = job_page.locator(".chatbot, .chat-window, .chatbot_Drawer, #chatbot-root, [class*='chatbot'], [class*='chatWindow']")
                     if await chatbot.first.is_visible(timeout=2000):
                         logger.info("Chatbot questionnaire detected. Initiating AI solver...")
                         try:
                             await self._handle_chatbot(job_page, job_title, company)
+                            self.stats["total_applied"] += 1
                         except Exception as e:
                             logger.error(f"Chatbot handling failed: {type(e).__name__}")
+                            self.stats["total_failed"] += 1
                     else:
                         logger.info("Clicked apply, but couldn't verify success message. (No chatbot detected)")
+                        self.stats["total_skipped"] += 1
         else:
             logger.info("Apply button not found or already applied.")
+            self.stats["total_skipped"] += 1
 
-    async def run(self) -> None:
+    async def run(self) -> dict:
         """
-        Main execution flow for the Naukri bot.
+        Main execution flow for the Naukri bot. Returns real session statistics.
         """
         async with BrowserEngine(headless=settings.headless) as engine:
             page = await engine.new_page()
@@ -494,10 +574,12 @@ class NaukriBot:
             for query in self.queries:
                 await self._execute_search(page, query)
 
-async def run_naukri_routine():
+        return dict(self.stats)
+
+async def run_naukri_routine() -> dict:
     """Wrapper function to instantiate and run NaukriBot."""
     bot = NaukriBot()
-    await bot.run()
+    return await bot.run()
 
 if __name__ == "__main__":
     asyncio.run(run_naukri_routine())

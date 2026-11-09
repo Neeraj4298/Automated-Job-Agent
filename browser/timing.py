@@ -10,7 +10,10 @@ import asyncio
 import random
 import time
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 
 # ── Per-character delay ────────────────────────────────────────────────────
@@ -18,7 +21,7 @@ import numpy as np
 def type_delay() -> float:
     """Per-character delay: 60–220 ms + Gaussian jitter.  Always positive."""
     base = random.uniform(0.06, 0.22)
-    jitter = abs(np.random.normal(0, 0.03))
+    jitter = abs(np.random.normal(0, 0.03)) if np is not None else abs(random.gauss(0, 0.03))
     return round(base + jitter, 4)
 
 

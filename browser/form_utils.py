@@ -69,66 +69,95 @@ SENSITIVE_FIELD_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
-# Generic examples only. Real candidate data must come from local runtime config.
-FIELD_MAPPING = {
-    # Name
-    "name": "Example Candidate",
-    "full name": "Example Candidate",
-    "first name": "Example",
-    "last name": "Candidate",
-    "surname": "Candidate",
-    
-    # Contact
-    "email": "candidate@example.com",
-    "email id": "candidate@example.com",
-    "phone": "+10000000000",
-    "mobile": "+10000000000",
-    "contact": "+10000000000",
-    
-    # Location
-    "location": "Remote",
-    "city": "Example City",
-    "state": "Example State",
-    "province": "Example Province",
-    "country": "Example Country",
-    "pincode": "000000",
-    "zip": "000000",
-    "postal": "000000",
-    
-    # Experience
-    "current company": "Example Company",
-    "employer": "Example Company",
-    "current role": "Software Developer",
-    "designation": "Software Developer",
-    "experience": "1",
-    "years": "1",
-    "total experience": "1 year",
-    "notice period": "30 days",
-    
-    # Education
-    "degree": "B.Tech",
-    "qualification": "B.Tech",
-    "university": "Example University",
-    "college": "Example College",
-    "graduation year": "2024",
-    "cgpa": "7.63",
-    "gpa": "7.63",
-    "percentage": "76.3",
-    
-    # Details & skills
-    "skills": "Python, FastAPI, MongoDB, GCP, SQL, Tableau, Pandas",
-    "key skills": "Python, FastAPI, MongoDB, GCP, SQL, Tableau, Pandas",
-    "how did you hear": "Job Board",
-    "are you authorized": "Yes",
-    "require sponsorship": "No",
-    "willing to relocate": "Yes",
-    "gender": "Male",
-    "resume": "upload",
-    "cv": "upload",
-    "references": "Available on request",
-    "available from": "Immediately",
-    "join date": "Immediately",
-}
+def build_field_mapping(active_settings=None) -> dict:
+    """
+    Build form field mapping dynamically from runtime `config.settings`.
+    Never uses hardcoded candidate assumptions when settings are available.
+    """
+    if active_settings is None:
+        try:
+            from config import settings as active_settings
+        except Exception:
+            active_settings = None
+
+    full_name = getattr(active_settings, "full_name", "") or "Candidate"
+    name_parts = full_name.strip().split()
+    first_name = name_parts[0] if name_parts else "Candidate"
+    last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+    email = getattr(active_settings, "email", "") or ""
+    phone = getattr(active_settings, "phone", "") or ""
+    location = getattr(active_settings, "location", "") or "Remote"
+    roles_list = getattr(active_settings, "roles_list", []) or []
+    primary_role = roles_list[0] if roles_list else "Software Engineer"
+    exp_range = getattr(active_settings, "experience_range", "") or "1-2 years"
+    exp_num_match = re.search(r"\d+", exp_range)
+    exp_years_num = exp_num_match.group(0) if exp_num_match else "1"
+    notice = getattr(active_settings, "available_start_date", "") or "Immediately"
+    salary = getattr(active_settings, "salary_expectation", "") or "Negotiable"
+    skills = getattr(active_settings, "skills_summary", "") or ""
+    work_auth = getattr(active_settings, "work_authorization", "") or "Authorized to work"
+    relocate = "Yes" if getattr(active_settings, "willing_to_relocate", False) else "No"
+    linkedin_url = getattr(active_settings, "linkedin_url", "") or ""
+    github_url = getattr(active_settings, "github_url", "") or ""
+
+    return {
+        "name": full_name,
+        "full name": full_name,
+        "first name": first_name,
+        "last name": last_name,
+        "surname": last_name,
+        "email": email,
+        "email id": email,
+        "phone": phone,
+        "mobile": phone,
+        "contact": phone,
+        "location": location,
+        "city": location,
+        "state": location,
+        "province": location,
+        "country": location,
+        "pincode": "",
+        "zip": "",
+        "postal": "",
+        "current company": "",
+        "employer": "",
+        "current role": primary_role,
+        "designation": primary_role,
+        "experience": exp_years_num,
+        "years": exp_years_num,
+        "total experience": exp_range,
+        "notice period": notice,
+        "salary": salary,
+        "expected ctc": salary,
+        "ctc": salary,
+        "linkedin": linkedin_url,
+        "github": github_url,
+        "portfolio": github_url or linkedin_url,
+        "website": github_url or linkedin_url,
+        "degree": "",
+        "qualification": "",
+        "university": "",
+        "college": "",
+        "graduation year": "",
+        "cgpa": "",
+        "gpa": "",
+        "percentage": "",
+        "skills": skills,
+        "key skills": skills,
+        "how did you hear": "Job Board",
+        "are you authorized": "Yes" if "authorized" in work_auth.lower() else work_auth,
+        "require sponsorship": "No",
+        "willing to relocate": relocate,
+        "gender": "Prefer not to say",
+        "resume": "upload",
+        "cv": "upload",
+        "references": "Available on request",
+        "available from": notice,
+        "join date": notice,
+    }
+
+
+FIELD_MAPPING = build_field_mapping()
 
 # ── Platform Detection ───────────────────────────────────────────────────
 

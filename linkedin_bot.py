@@ -21,73 +21,111 @@ from ai.llm_client import LLMClient
 
 # ─────────────────────────────────────────────
 #  Candidate profile snapshot (used in messages)
-#  Real values must come from local .env, never from committed source.
+#  All values come dynamically from local .env via `settings`.
 # ─────────────────────────────────────────────
-MY_NAME = settings.full_name.split()[0] if settings.full_name else "Candidate"
-MY_SKILLS = settings.skills_summary or "Python, FastAPI, cloud, data engineering"
-MY_COLLEGE = "Configured in resume"
-MY_NOTICE = settings.available_start_date or "Configured locally"
-MY_ACHIEVEMENT = settings.achievements or "built reliable backend and data systems"
+def _first_name(active_settings=None) -> str:
+    s = active_settings or settings
+    return s.full_name.split()[0] if getattr(s, "full_name", "") else "Candidate"
 
-# ─────────────────────────────────────────────
-#  Outreach message templates
-# ─────────────────────────────────────────────
-TEMPLATES: Dict[str, str] = {
 
-    # ── Connection request note (≤300 chars) ─────────────────────────
-    "connect_recruiter": (
-        "Hi [Name], I applied for [Job Title] at [Company]. "
-        "I'm a Backend/AI Engineer with skills in Python, GCP, GenAI & LLMs. "
-        "Please consider my profile and schedule an interview if there's a fit. "
-        f"Thanks, {MY_NAME}!"
-    ),
-    "connect_alumni": (
-        f"Hi [Name], I applied for [Job Title] at [Company]. "
-        "I have strong skills in Python, GCP, GenAI & LLMs. "
-        "Would you be open to providing a referral or connecting? "
-        f"Thanks, {MY_NAME}!"
-    ),
-    "connect_manager": (
-        "Hi [Name], I applied for [Job Title] at [Company]. "
-        "I'm a Backend/AI Engineer with skills in Python, GCP, GenAI & LLMs. "
-        "Please consider my profile for an interview. "
-        f"Thanks, {MY_NAME}!"
-    ),
-    "connect_founder": (
-        "Hi [Name], I applied for [Job Title] at [Company]. "
-        "I'm a Backend/AI Engineer with skills in Python, GCP, GenAI & LLMs. "
-        "Please consider my profile for an interview. "
-        f"Thanks, {MY_NAME}!"
-    ),
+def _primary_role(active_settings=None) -> str:
+    s = active_settings or settings
+    roles = getattr(s, "roles_list", []) or []
+    return roles[0] if roles else "Software Engineer"
 
-    # ── Referral DM (sent after connection is accepted) ──────────────
-    "referral_dm": (
-        "Hi [Name],\n\n"
-        "I hope you're having a great week!\n\n"
-        "I'm reaching out because I saw the **[Job Title]** opening at **[Company]** "
-        f"and I'm very interested. I'm a Backend/AI Engineer ({MY_COLLEGE}) specialising "
-        f"in {MY_SKILLS}. In my recent role I {MY_ACHIEVEMENT}.\n\n"
-        "Given my strong alignment with the role, would you be open to submitting a quick "
-        "employee referral for me? I've attached my resume and the job link below for "
-        "your reference – just the Job ID is all that's usually needed on the internal portal!\n\n"
-        "No worries at all if you don't have the bandwidth right now – I appreciate your "
-        "time either way.\n\n"
-        f"Best,\n{MY_NAME}\n"
-        "**Job Link/ID:** [Insert Link]"
-    ),
 
-    # ── HR / Interview schedule request ─────────────────────────────
-    "hr_schedule": (
-        "Hi [Name],\n\n"
-        f"I'm {MY_NAME}, a Backend/AI Engineer ({MY_COLLEGE}). I recently applied for "
-        "the **[Job Title]** role at **[Company]** and am very excited about the opportunity.\n\n"
-        f"I bring strong expertise in {MY_SKILLS}, and have {MY_ACHIEVEMENT}. "
-        f"I'm available to join in {MY_NOTICE}.\n\n"
-        "Could you please consider scheduling an interview or sharing the next steps? "
-        "I'd be happy to send across my resume / portfolio.\n\n"
-        f"Thank you!\nBest regards,\n{MY_NAME}"
-    ),
-}
+def build_candidate_profile_context(active_settings=None) -> str:
+    """
+    Build the candidate profile context dynamically from `config.settings`.
+    Contains zero hardcoded salary, city, or experience numbers.
+    """
+    s = active_settings or settings
+    roles_str = ", ".join(getattr(s, "roles_list", []) or []) or "Software Engineer"
+    skills_str = getattr(s, "skills_summary", "") or "See resume"
+    exp_str = getattr(s, "experience_range", "") or "Not specified"
+    loc_str = getattr(s, "location", "") or "Remote"
+    relocate_str = "Yes" if getattr(s, "willing_to_relocate", False) else "No"
+    salary_str = getattr(s, "salary_expectation", "") or "Negotiable"
+    notice_str = getattr(s, "available_start_date", "") or "Immediately"
+    work_auth_str = getattr(s, "work_authorization", "") or "Authorized to work"
+    achievements_str = getattr(s, "achievements", "") or "See resume"
+
+    return (
+        f"Name: {getattr(s, 'full_name', 'Candidate')}\n"
+        f"Target Roles: {roles_str}\n"
+        f"Skills: {skills_str}\n"
+        f"Experience: {exp_str}\n"
+        f"Location: {loc_str} (Willing to relocate: {relocate_str})\n"
+        f"Salary / CTC Expectation: {salary_str}\n"
+        f"Notice Period / Available Start: {notice_str}\n"
+        f"Work Authorization: {work_auth_str}\n"
+        f"Achievements: {achievements_str}\n"
+        f"Phone/Email: UNKNOWN (ask user)\n"
+    )
+
+
+def build_outreach_templates(active_settings=None) -> Dict[str, str]:
+    """Build outreach message templates dynamically from `config.settings`."""
+    s = active_settings or settings
+    my_name = _first_name(s)
+    my_role = _primary_role(s)
+    my_skills = getattr(s, "skills_summary", "") or "software engineering"
+    my_notice = getattr(s, "available_start_date", "") or "Immediately"
+    my_achievement = getattr(s, "achievements", "") or "delivered production engineering systems"
+
+    return {
+        "connect_recruiter": (
+            f"Hi [Name], I applied for [Job Title] at [Company]. "
+            f"I'm a {my_role} with skills in {my_skills}. "
+            f"Please consider my profile and schedule an interview if there's a fit. "
+            f"Thanks, {my_name}!"
+        ),
+        "connect_alumni": (
+            f"Hi [Name], I applied for [Job Title] at [Company]. "
+            f"I have strong skills in {my_skills}. "
+            f"Would you be open to providing a referral or connecting? "
+            f"Thanks, {my_name}!"
+        ),
+        "connect_manager": (
+            f"Hi [Name], I applied for [Job Title] at [Company]. "
+            f"I'm a {my_role} with skills in {my_skills}. "
+            f"Please consider my profile for an interview. "
+            f"Thanks, {my_name}!"
+        ),
+        "connect_founder": (
+            f"Hi [Name], I applied for [Job Title] at [Company]. "
+            f"I'm a {my_role} with skills in {my_skills}. "
+            f"Please consider my profile for an interview. "
+            f"Thanks, {my_name}!"
+        ),
+        "referral_dm": (
+            "Hi [Name],\n\n"
+            "I hope you're having a great week!\n\n"
+            "I'm reaching out because I saw the **[Job Title]** opening at **[Company]** "
+            f"and I'm very interested. I'm a {my_role} specialising "
+            f"in {my_skills}. In my recent work: {my_achievement}.\n\n"
+            "Given my strong alignment with the role, would you be open to submitting a quick "
+            "employee referral for me? I've attached my resume and the job link below for "
+            "your reference – just the Job ID is all that's usually needed on the internal portal!\n\n"
+            "No worries at all if you don't have the bandwidth right now – I appreciate your "
+            "time either way.\n\n"
+            f"Best,\n{my_name}\n"
+            "**Job Link/ID:** [Insert Link]"
+        ),
+        "hr_schedule": (
+            "Hi [Name],\n\n"
+            f"I'm {my_name}, a {my_role}. I recently applied for "
+            "the **[Job Title]** role at **[Company]** and am very excited about the opportunity.\n\n"
+            f"I bring strong expertise in {my_skills} ({my_achievement}). "
+            f"I'm available to join: {my_notice}.\n\n"
+            "Could you please consider scheduling an interview or sharing the next steps? "
+            "I'd be happy to send across my resume / portfolio.\n\n"
+            f"Thank you!\nBest regards,\n{my_name}"
+        ),
+    }
+
+
+TEMPLATES: Dict[str, str] = build_outreach_templates()
 
 
 class LinkedInBot:
@@ -111,8 +149,9 @@ class LinkedInBot:
         "Company", "RoleType", "Status", "DateSent", "LinkedInProfile"
     ]
 
-    def __init__(self):
+    def __init__(self, single_job_link: Optional[str] = None, llm_client: Optional[LLMClient] = None):
         self.creds = settings.get_credentials("linkedin.com")
+        self.single_job_link = single_job_link
         self.queries = [
             "AI Engineer",
             "Python Backend Developer",
@@ -122,7 +161,60 @@ class LinkedInBot:
         self.recruiters_csv = PROJECT_ROOT.parent / "recruiter_outreach" / "recruiters.csv"
         self.saved_answers = {}
         self._ensure_csv_exists()
-        self.llm = LLMClient()
+        self.llm = llm_client or LLMClient()
+        self.stats: Dict[str, Any] = {
+            "total_applied": 0,
+            "total_skipped": 0,
+            "total_failed": 0,
+            "sites_blocked": [],
+        }
+
+    def get_user_profile(self) -> Dict[str, Any]:
+        """Build candidate profile dict dynamically from runtime settings."""
+        return {
+            "full_name": settings.full_name,
+            "email": settings.email,
+            "phone": settings.phone,
+            "location": settings.location,
+            "linkedin_url": settings.linkedin_url,
+            "github_url": settings.github_url,
+            "roles": settings.roles_list,
+            "experience_range": settings.experience_range,
+            "location_filter": settings.location_filter,
+            "allow_contract": settings.allow_contract,
+            "allow_internship": settings.allow_internship,
+            "skills_summary": settings.skills_summary,
+            "achievements": settings.achievements,
+            "work_authorization": settings.work_authorization,
+            "salary_expectation": settings.salary_expectation,
+            "willing_to_relocate": settings.willing_to_relocate,
+            "available_start_date": settings.available_start_date,
+        }
+
+    def qualify_job(self, job_title: str, company: str, jd_text: str) -> Dict[str, Any]:
+        """
+        Evaluate job suitability using the AI qualification engine (`qualify_prompt` + `LLMClient`).
+        Returns a dict with `{"pass": bool, "reason": str}`.
+        """
+        full_jd = f"Job Title: {job_title}\nCompany: {company}\n\n{jd_text or ''}".strip()
+        try:
+            result = self.llm.call(
+                "qualify",
+                job_description=full_jd,
+                user_profile=self.get_user_profile(),
+            )
+            if isinstance(result, dict):
+                if result.get("action") == "halt" or result.get("flag") is True:
+                    return {"pass": False, "reason": result.get("reason", "Flagged by AI safety rules")}
+                return {
+                    "pass": bool(result.get("pass", False)),
+                    "reason": str(result.get("reason", "")),
+                }
+        except Exception as e:
+            logger.warning(f"LinkedIn AI qualification failed ({type(e).__name__}); skipping safely.")
+            return {"pass": False, "reason": f"AI qualification error: {type(e).__name__}"}
+
+        return {"pass": False, "reason": "No qualification response from LLM"}
 
     # ── Initialisation helpers ───────────────────────────────────────
 
@@ -464,11 +556,19 @@ class LinkedInBot:
 
         if is_external_apply:
             logger.info(f"⏭  Skipping external-apply job: {job_title} @ {company}")
+            self.stats["total_skipped"] += 1
             return
 
-        # ── JD text (for email extraction) ───────────────────────────
+        # ── JD text (for email extraction & AI qualification) ────────
         jd_el = details.locator("div.jobs-description-content__text, div[id='job-details']")
         jd_text = await jd_el.inner_text() if await jd_el.is_visible() else ""
+
+        # P0 Fix: Evaluate job with AI qualification engine before applying
+        qual = self.qualify_job(job_title, company, jd_text)
+        if not qual.get("pass", False):
+            logger.info(f"AI qualification skipped '{job_title}' at '{company}': {qual.get('reason')}")
+            self.stats["total_skipped"] += 1
+            return
 
         # ── Scenario C: email in JD ───────────────────────────────────
         emails = self._extract_emails(jd_text)
@@ -477,6 +577,8 @@ class LinkedInBot:
             self._save_recruiter("Recruiter", emails[0], job_title, company, linkedin_url="")
             if is_easy_apply:
                 await self._easy_apply(page, details, job_title, company)
+            else:
+                self.stats["total_skipped"] += 1
             return
 
         # ── Scenario A: hirer card on job page ────────────────────────
@@ -490,6 +592,8 @@ class LinkedInBot:
             logger.info("🤝 Scenario A — job poster found.")
             if is_easy_apply:
                 await self._easy_apply(page, details, job_title, company)
+            else:
+                self.stats["total_skipped"] += 1
             await self._connect_with_user(page, poster_url, job_title, company)
             return
 
@@ -497,21 +601,15 @@ class LinkedInBot:
         logger.info("🔎 Scenario B — no poster; searching for recruiter…")
         if is_easy_apply:
             await self._easy_apply(page, details, job_title, company)
+        else:
+            self.stats["total_skipped"] += 1
         await self._find_and_connect_recruiter(page, job_title, company)
 
     # ── Answer Inference ──────────────────────────────────────────────
     
     async def _infer_answer(self, question: str, options: List[str] = None) -> str:
-        """Use LLM to infer the answer to a question based on the candidate profile."""
-        profile_context = f"""Name: {MY_NAME}
-Skills: {MY_SKILLS}
-College: {MY_COLLEGE}
-Notice Period: {MY_NOTICE}
-Experience: Backend/AI Engineer, 3+ years python, 2 years GenAI/LLM/RAG/FastAPI.
-Location: Bengaluru, India (willing to relocate to Bengaluru)
-CTC: Current 7 LPA, Expected 14-18 LPA
-Phone/Email: UNKNOWN (ask user)
-"""
+        """Use LLM to infer the answer to a question based on the dynamic candidate profile."""
+        profile_context = build_candidate_profile_context(settings)
         system_prompt = "You are a deterministic job application assistant. Output ONLY valid JSON."
         user_prompt = f"""Based on this candidate profile:
 {profile_context}
@@ -719,6 +817,7 @@ Answer this job application question: "{question}"
                     if await done.is_visible():
                         await done.click(delay=random.randint(50, 150))
                         logger.success(f"✅ Applied (Easy Apply): {job_title} @ {company}")
+                        self.stats["total_applied"] += 1
                         
                         # Handle the "Keep track of your applications" toast/popup
                         await async_sleep(1.0)
@@ -727,6 +826,7 @@ Answer this job application question: "{question}"
                             await not_now_btn.click(delay=random.randint(50, 150))
                         break
                     # Dismiss any unexpected modal
+                    self.stats["total_skipped"] += 1
                     close = modal.locator("button[aria-label='Dismiss']").first
                     if await close.is_visible():
                         await close.click()
@@ -1000,7 +1100,7 @@ Answer this job application question: "{question}"
 
     # ── Main entry ───────────────────────────────────────────────────
 
-    async def run(self) -> None:
+    async def run(self) -> Dict[str, Any]:
         async with BrowserEngine(headless=settings.headless) as engine:
             page = await engine.new_page()
 
@@ -1011,12 +1111,14 @@ Answer this job application question: "{question}"
             for query in self.queries:
                 await self._execute_search(page, query)
 
+        return dict(self.stats)
+
 
 # ── Runner ───────────────────────────────────────────────────────────
 
-async def run_linkedin_routine():
+async def run_linkedin_routine() -> Dict[str, Any]:
     bot = LinkedInBot()
-    await bot.run()
+    return await bot.run()
 
 
 if __name__ == "__main__":
