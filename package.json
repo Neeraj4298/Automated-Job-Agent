@@ -1,0 +1,12 @@
+{
+  "name": "aetherapply-autonomous-job-agent",
+  "version": "2.4.0",
+  "private": true,
+  "description": "AetherApply — Autonomous AI Job Application System (Database + Backend + Web Console)",
+  "scripts": {
+    "start": "python3 server.py --host 0.0.0.0 --port 8080",
+    "dev": "python3 server.py --host 127.0.0.1 --port 8080",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
+  }
+}

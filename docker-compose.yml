@@ -1,0 +1,53 @@
+services:
+  aetherapply:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aetherapply-console
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    env_file:
+      - .env
+    environment:
+      - DB_PATH=/app/data/applied_jobs.db
+      - HEADLESS=true
+      - PORT=8080
+    volumes:
+      - aetherapply_data:/app/data
+      - ./resumes:/app/resumes
+      - ./reports:/app/reports
+      - ./.env:/app/.env
+    command: ["python", "server.py", "--host", "0.0.0.0", "--port", "8080"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  aetherapply-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aetherapply-scheduler
+    restart: unless-stopped
+    depends_on:
+      aetherapply:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DB_PATH=/app/data/applied_jobs.db
+      - HEADLESS=true
+    volumes:
+      - aetherapply_data:/app/data
+      - ./resumes:/app/resumes
+      - ./reports:/app/reports
+      - ./.env:/app/.env
+    command: ["python", "main.py"]
+
+volumes:
+  aetherapply_data:
+    driver: local
+

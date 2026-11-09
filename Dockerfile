@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Install system dependencies for Playwright
+# Install system dependencies for Playwright & healthchecks
 RUN apt-get update && apt-get install -y \
     libglib2.0-0 libnss3 libatk1.0-0 libatk-bridge2.0-0 \
     libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 \
@@ -12,15 +12,24 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install Python deps
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Playwright Chromium
 RUN playwright install --with-deps chromium
 
-# Copy project
+# Copy project files (including frontend/ and server.py)
 COPY . .
 
-# Run the scheduler by default
-CMD ["python", "main.py"]
+# Create persistent data directory for SQLite
+RUN mkdir -p /app/data /app/reports/output
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=20s --timeout=5s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:8080/api/health || exit 1
+
+# Default command launches the unified Web Console + API + DB server
+CMD ["python", "server.py", "--host", "0.0.0.0", "--port", "8080"]
+

@@ -1,0 +1,17 @@
+{
+  "name": "AetherApply — Autonomous Job Application Agent",
+  "short_name": "AetherApply",
+  "description": "AI-powered autonomous job discovery, qualification, and stealth ATS application platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#04060A",
+  "theme_color": "#04060A",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "64x64 192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

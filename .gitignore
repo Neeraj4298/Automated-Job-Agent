@@ -17,8 +17,15 @@ queue/
 *.csv
 *.png
 *.html
+!frontend/*.html
 *.json
 !*.example.json
+!package.json
+!skills-lock.json
+
+# Private uploaded resumes
+resumes/*
+!resumes/.gitkeep
 
 # Python
 __pycache__/

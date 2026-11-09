@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-checklist-global": {
+      "source": "thedaviddias/front-end-checklist",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-checklist-global/SKILL.md",
+      "computedHash": "85e02df53ffdb817890a2d0538d2aab1358922d1cd5fd4ff62f2a0bdceda74fd"
+    },
+    "https": {
+      "source": "thedaviddias/front-end-checklist",
+      "sourceType": "github",
+      "skillPath": "skills/https/SKILL.md",
+      "computedHash": "c10e639ef855085d467b15406c371ca36862a1e131766644aeadc1cafb70eae0"
+    }
+  }
+}

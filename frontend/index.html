@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AetherApply — Autonomous AI Job Application Console</title>
+  <meta name="description" content="Production command center for the Autonomous AI Job Application System. Discover, qualify, personalize, and submit applications with stealth browser automation." />
+  <meta name="theme-color" content="#04060A" id="meta-theme-color" />
+  <link rel="canonical" href="https://aetherapply.local/" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+
+  <meta property="og:title" content="AetherApply — Autonomous AI Job Application Console" />
+  <meta property="og:description" content="Autonomous AI job discovery, qualification, and stealth ATS submission engine." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://aetherapply.local/" />
+  <meta property="og:image" content="https://aetherapply.local/icon.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AetherApply — Autonomous AI Job Application Console" />
+  <meta name="twitter:description" content="Autonomous AI job discovery, qualification, and stealth ATS submission engine." />
+
+  <link rel="stylesheet" href="/styles.css?v=9.0" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <div class="ambient-canvas" aria-hidden="true">
+    <div class="ambient-orb ambient-orb--primary"></div>
+    <div class="ambient-orb ambient-orb--secondary"></div>
+    <div class="ambient-grid"></div>
+  </div>
+
+  <div class="app-shell">
+    <header class="topbar" role="banner">
+      <div class="topbar__brand" id="brand-home-trigger" role="button" tabindex="0" aria-label="Return to AetherApply Business Landing Page" style="cursor: pointer;">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="16" fill="currentColor" fill-opacity="0.12" />
+            <rect x="2" y="2" width="60" height="60" rx="14" stroke="currentColor" stroke-opacity="0.45" stroke-width="3" />
+            <path d="M20 44L32 16L44 44" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M24.5 35H39.5" stroke="#60A5FA" stroke-width="4" stroke-linecap="round" />
+            <circle cx="32" cy="16" r="4" fill="#60A5FA" />
+          </svg>
+        </div>
+        <div class="brand-copy">
+          <span class="brand-name">AetherApply</span>
+          <span class="brand-tag">Autonomous Agent v2.4</span>
+        </div>
+      </div>
+
+      <!-- User Workspace Navigation (Shown ONLY after Onboarding is completed) -->
+      <nav class="primary-nav" id="protected-nav" aria-label="User workspace navigation" hidden>
+        <div class="nav-pill-track" role="tablist" aria-label="Workspace views">
+          <span class="nav-pill-glider" id="nav-glider" aria-hidden="true"></span>
+          <button type="button" role="tab" aria-selected="true" aria-controls="view-overview" id="tab-overview" data-view="overview" class="nav-tab is-active">
+            <span>Control Room</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="view-queue" id="tab-queue" data-view="queue" class="nav-tab">
+            <span>Queue</span>
+            <span class="nav-badge" id="nav-queue-badge">0</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="view-ledger" id="tab-ledger" data-view="ledger" class="nav-tab">
+            <span>Ledger</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="view-profile" id="tab-profile" data-view="profile" class="nav-tab">
+            <span>Profile &amp; .env</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="view-security" id="tab-security" data-view="security" class="nav-tab">
+            <span>HTTPS</span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="topbar__actions">
+        <!-- Public Landing Actions: ONLY Sign In, Sign Up, and Theme -->
+        <div class="row-actions" id="public-auth-actions">
+          <button type="button" class="btn btn--subtle btn--sm" id="btn-header-signin">Sign In</button>
+          <button type="button" class="btn btn--primary btn--sm" id="btn-header-signup">Sign Up</button>
+        </div>
+
+        <!-- Protected User Workspace Controls (Hidden on Landing & Login) -->
+        <div class="row-actions" id="protected-header-actions" hidden>
+          <div class="agent-pulse-pill" id="header-agent-pill" aria-live="polite">
+            <span class="pulse-dot" id="header-pulse-dot" aria-hidden="true"></span>
+            <span id="header-agent-state">Agent Armed</span>
+          </div>
+
+          <button type="button" class="icon-btn" id="btn-export-csv" aria-label="Export applications CSV report" title="Export CSV Report">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+
+          <button type="button" class="btn btn--ghost btn--sm" id="btn-logout">Sign Out</button>
+        </div>
+
+        <button type="button" class="theme-switch" id="btn-theme-toggle" aria-label="Switch color theme" title="Toggle Obsidian Dark / Alabaster Light theme">
+          <span class="theme-switch__dot" aria-hidden="true"></span>
+          <span class="theme-switch__label" id="theme-label">Obsidian Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Application Workspace -->
+    <main id="main-content" class="workspace" tabindex="-1">
+      <!-- VIEW 0A: BUSINESS LANDING PAGE -->
+      <section id="view-landing" role="tabpanel" aria-labelledby="tab-landing" class="view-panel is-active">
+        <div class="landing-hero">
+          <div class="eyebrow-chip">
+            <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+            <span>AUTONOMOUS AI RECRUITING AGENT · GEMINI 2.5 PRO + STEALTH PLAYWRIGHT</span>
+          </div>
+          <h1 class="landing-title">
+            Your Career Pipeline,<br />
+            <span class="text-gradient-blue">Engineered for Autonomy.</span>
+          </h1>
+          <p class="landing-lead">
+            AetherApply discovers high-signal engineering roles, evaluates semantic fit with Multi-LLM reasoning, synthesizes tailored cover letters, and executes human-timed ATS submissions across LinkedIn, Naukri, Greenhouse, Lever &amp; Workday.
+          </p>
+          <div class="landing-cta-group">
+            <button type="button" class="btn btn--primary btn--lg" data-open-auth="register">
+              <span>Get Started — Create Account →</span>
+            </button>
+            <button type="button" class="btn btn--subtle btn--lg" data-open-auth="login">
+              <span>Sign In to Workspace</span>
+            </button>
+          </div>
+
+          <div class="landing-stats-strip" aria-label="Platform highlights">
+            <div class="landing-stat"><strong class="mono-num">SHA-256</strong><span>Idempotent Deduplication</span></div>
+            <div class="landing-stat"><strong class="mono-num">08:00–21:00</strong><span>Human-Timed Cron Window</span></div>
+            <div class="landing-stat"><strong class="mono-num">3-Tier AI</strong><span>Gemini · Claude · GPT-4o</span></div>
+            <div class="landing-stat"><strong class="mono-num">100% Local</strong><span>Self-Hosted .env &amp; SQLite</span></div>
+          </div>
+        </div>
+
+        <div class="arch-grid" aria-label="Four-Layer System Architecture">
+          <article class="arch-card">
+            <span class="arch-step mono-num">LAYER 01</span>
+            <h2 class="arch-title">Precision APScheduler</h2>
+            <p class="arch-desc">Randomized daily execution windows (08:00–21:00) with per-domain rate caps.</p>
+          </article>
+          <article class="arch-card">
+            <span class="arch-step mono-num">LAYER 02</span>
+            <h2 class="arch-title">Stealth Playwright Engine</h2>
+            <p class="arch-desc">Rotates user-agents, simulates human keystroke latency, solves AI screening chatbots, and respects <code>robots.txt</code>.</p>
+          </article>
+          <article class="arch-card">
+            <span class="arch-step mono-num">LAYER 03</span>
+            <h2 class="arch-title">LangGraph + Multi-LLM Brain</h2>
+            <p class="arch-desc">Extracts TF-IDF &amp; semantic keywords, scores role fit, drafts cover letters, and personalizes referral DMs.</p>
+          </article>
+          <article class="arch-card">
+            <span class="arch-step mono-num">LAYER 04</span>
+            <h2 class="arch-title">SQLite Ledger &amp; Alerts</h2>
+            <p class="arch-desc">Tracks every attempt with confirmation IDs and dispatches daily HTML/CSV reports via SMTP &amp; Telegram.</p>
+          </article>
+        </div>
+
+        <!-- Product Capabilities Bento Grid -->
+        <div class="bento-grid" aria-label="Enterprise Product Capabilities">
+          <article class="panel-card">
+            <div class="eyebrow-chip">
+              <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+              <span>INTELLIGENT OUTREACH ENGINE</span>
+            </div>
+            <h2 class="panel-title">Automated Recruiter &amp; Referral Workflows (Scenarios A / B / C)</h2>
+            <p class="panel-subtitle">
+              Beyond standard ATS form filling, AetherApply extracts hiring manager contacts, sends personalized LinkedIn connection notes (&le;300 chars), and dispatches tailored referral DMs with your stored CV.
+            </p>
+          </article>
+
+          <article class="panel-card">
+            <div class="eyebrow-chip">
+              <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+              <span>ETHICAL &amp; SECURITY GUARDRAILS</span>
+            </div>
+            <h2 class="panel-title">Zero-Fabrication AI &amp; Transport Hardening</h2>
+            <p class="panel-subtitle">
+              Strictly respects <code>robots.txt</code>, halts immediately if sensitive fields (SSN, bank details) are detected, never bypasses CAPTCHAs, and enforces HSTS/CSP security headers.
+            </p>
+          </article>
+        </div>
+
+        <article class="panel-card landing-bottom-cta">
+          <div>
+            <h2 class="panel-title">Ready to deploy your autonomous job agent?</h2>
+            <p class="panel-subtitle">Create your operator account or sign in to unlock the 4-step <code>.env</code> onboarding wizard and live Control Room.</p>
+          </div>
+          <div class="row-actions">
+            <button type="button" class="btn btn--primary" data-open-auth="register">Sign Up &amp; Configure</button>
+            <button type="button" class="btn btn--subtle" data-open-auth="login">Sign In</button>
+          </div>
+        </article>
+      </section>
+
+      <!-- VIEW 0B: OPERATOR SIGN IN / SIGN UP (REGISTER) GATE -->
+      <section id="view-login" role="tabpanel" aria-labelledby="tab-login" class="view-panel" hidden>
+        <div class="auth-stage">
+          <article class="panel-card auth-card">
+            <div class="eyebrow-chip">
+              <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+              <span>PROTECTED WORKSPACE GATEWAY</span>
+            </div>
+
+            <div class="filter-group auth-mode-tabs" role="tablist" aria-label="Authentication mode">
+              <button type="button" class="filter-chip is-active" id="tab-auth-signin" data-auth-tab="login">Sign In</button>
+              <button type="button" class="filter-chip" id="tab-auth-signup" data-auth-tab="register">Sign Up / Register</button>
+            </div>
+
+            <!-- SIGN IN FORM -->
+            <form id="login-gate-form" class="form-stack">
+              <h2 class="page-title">Welcome Back</h2>
+              <p class="page-subtitle">Sign in with your operator credentials to unlock the Control Room and <code>.env</code> configuration.</p>
+              <div class="form-field">
+                <label for="login-email">Email Address</label>
+                <input id="login-email" name="email" type="email" autocomplete="email" required class="input-control" placeholder="you@domain.com" />
+              </div>
+              <div class="form-field">
+                <label for="login-passcode">Password</label>
+                <input id="login-passcode" name="password" type="password" autocomplete="current-password" required class="input-control" placeholder="Enter your password" />
+              </div>
+              <div class="auth-actions">
+                <button type="submit" class="btn btn--primary">Sign In to Console →</button>
+                <button type="button" class="btn btn--subtle" data-open-auth="register">Need an account? Sign Up / Register</button>
+                <button type="button" class="btn btn--ghost" data-jump-view="landing">← Back to Business Page</button>
+              </div>
+            </form>
+
+            <!-- SIGN UP / REGISTER FORM -->
+            <form id="register-gate-form" class="form-stack" hidden>
+              <h2 class="page-title">Create Operator Account</h2>
+              <p class="page-subtitle">Register your profile to unlock the 4-step <code>.env</code> onboarding process and autonomous agent dashboard.</p>
+              <div class="form-field">
+                <label for="reg-full-name">Full Name</label>
+                <input id="reg-full-name" name="full_name" type="text" autocomplete="name" required class="input-control" placeholder="e.g. Neeraj Racharla" />
+              </div>
+              <div class="form-field">
+                <label for="reg-email">Email Address</label>
+                <input id="reg-email" name="email" type="email" autocomplete="email" required class="input-control" placeholder="you@domain.com" />
+              </div>
+              <div class="form-field">
+                <label for="reg-password">Create Password (4+ chars)</label>
+                <input id="reg-password" name="password" type="password" autocomplete="new-password" minlength="4" required class="input-control" placeholder="Create a strong password" />
+              </div>
+              <div class="auth-actions">
+                <button type="submit" class="btn btn--primary">Create Account &amp; Start Onboarding →</button>
+                <button type="button" class="btn btn--subtle" data-open-auth="login">Already registered? Sign In</button>
+                <button type="button" class="btn btn--ghost" data-jump-view="landing">← Back to Business Page</button>
+              </div>
+            </form>
+          </article>
+        </div>
+      </section>
+
+      <!-- VIEW 0C: 4-STEP INTERACTIVE ONBOARDING WIZARD (.env PERSISTENCE) -->
+      <section id="view-onboarding" role="tabpanel" aria-labelledby="tab-onboarding" class="view-panel" hidden>
+        <div class="onboarding-shell">
+          <div class="section-header">
+            <div>
+              <div class="eyebrow-chip">
+                <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+                <span>GUIDED .ENV CONFIGURATION WIZARD</span>
+              </div>
+              <h2 class="page-title">Configure Your Autonomous Job Agent</h2>
+              <p class="page-subtitle">Every detail entered below is written directly to your local <code>.env</code> configuration file.</p>
+            </div>
+          </div>
+
+          <div class="wizard-stepper" role="tablist" aria-label="Onboarding steps">
+            <button type="button" class="wizard-step-btn is-active" data-wiz-step="1">
+              <span class="wizard-step-num">STEP 01</span>
+              <span class="wizard-step-label">Candidate Identity</span>
+            </button>
+            <button type="button" class="wizard-step-btn" data-wiz-step="2">
+              <span class="wizard-step-num">STEP 02</span>
+              <span class="wizard-step-label">Roles &amp; Quotas</span>
+            </button>
+            <button type="button" class="wizard-step-btn" data-wiz-step="3">
+              <span class="wizard-step-num">STEP 03</span>
+              <span class="wizard-step-label">AI Brain &amp; Skills</span>
+            </button>
+            <button type="button" class="wizard-step-btn" data-wiz-step="4">
+              <span class="wizard-step-num">STEP 04</span>
+              <span class="wizard-step-label">Job Boards &amp; Alerts</span>
+            </button>
+          </div>
+
+          <form id="onboarding-wizard-form" class="panel-card">
+            <!-- STEP 1: IDENTITY & RESUME -->
+            <div class="wizard-pane" data-wiz-pane="1">
+              <h3 class="panel-title">Step 1 — Candidate Identity &amp; Resume Path</h3>
+              <p class="panel-subtitle">Stored in <code>FULL_NAME</code>, <code>EMAIL</code>, <code>PHONE</code>, <code>LOCATION</code>, and <code>RESUME_PATH</code>.</p>
+              <div class="form-stack">
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="ob-full-name">Full Name</label>
+                    <input id="ob-full-name" name="full_name" type="text" autocomplete="name" required class="input-control" placeholder="e.g. Neeraj Racharla" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-email">Email Address</label>
+                    <input id="ob-email" name="email" type="email" autocomplete="email" required class="input-control" placeholder="you@example.com" />
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="ob-phone">Phone Number</label>
+                    <input id="ob-phone" name="phone" type="tel" autocomplete="tel" class="input-control" placeholder="+91 9876543210" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-location">Current Location</label>
+                    <input id="ob-location" name="location" type="text" autocomplete="address-level2" class="input-control" placeholder="Remote / Bengaluru / San Francisco" />
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="ob-linkedin">LinkedIn Profile URL</label>
+                    <input id="ob-linkedin" name="linkedin_url" type="url" autocomplete="url" class="input-control" placeholder="https://www.linkedin.com/in/your-profile/" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-github">GitHub Profile URL</label>
+                    <input id="ob-github" name="github_url" type="url" autocomplete="url" class="input-control" placeholder="https://github.com/your-username" />
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="ob-work-auth">Work Authorization</label>
+                    <input id="ob-work-auth" name="work_authorization" type="text" autocomplete="off" class="input-control" placeholder="Authorized to work" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-start-date">Available Start / Notice</label>
+                    <input id="ob-start-date" name="available_start_date" type="text" autocomplete="off" class="input-control" placeholder="Immediately / 15 Days" />
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="ob-resume">Attach CV / Resume PDF (Stored in <code>resumes/</code> &amp; referenced by <code>RESUME_PATH</code>)</label>
+                  <div class="resume-upload-box">
+                    <div class="resume-upload-row">
+                      <input id="ob-resume" name="resume_path" type="text" autocomplete="off" class="input-control mono-num" placeholder="/path/to/resume.pdf — or click Attach CV →" />
+                      <label for="ob-resume-file" class="btn btn--accent resume-file-btn">
+                        <span>Attach CV / Resume (PDF)</span>
+                      </label>
+                      <input id="ob-resume-file" type="file" accept=".pdf,.doc,.docx,application/pdf" class="sr-only" />
+                    </div>
+                    <div class="resume-status-bar">
+                      <span class="kpi-tag kpi-tag--cobalt" id="ob-resume-badge">No CV uploaded yet</span>
+                      <a href="/api/resume/current" target="_blank" rel="noopener noreferrer" class="footer-link" id="ob-resume-preview" hidden>View Stored CV ↗</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2: TARGET ROLES & QUOTAS -->
+            <div class="wizard-pane" data-wiz-pane="2" hidden>
+              <h3 class="panel-title">Step 2 — Target Roles, Experience &amp; Daily Quotas</h3>
+              <p class="panel-subtitle">Stored in <code>ROLES</code>, <code>EXPERIENCE_RANGE</code>, <code>DAILY_MAX_APPLICATIONS</code>, and <code>LOCATION_FILTER</code>.</p>
+              <div class="form-stack">
+                <div class="form-field">
+                  <label for="ob-roles">Target Job Titles (comma-separated)</label>
+                  <input id="ob-roles" name="roles" type="text" autocomplete="off" class="input-control" placeholder="Backend Engineer, AI Engineer, Python Developer, Data Engineer" />
+                </div>
+                <div class="form-row-3">
+                  <div class="form-field">
+                    <label for="ob-exp">Experience Range</label>
+                    <input id="ob-exp" name="experience_range" type="text" autocomplete="off" class="input-control" placeholder="1-3 years" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-daily-max">Daily Application Cap</label>
+                    <input id="ob-daily-max" name="daily_max_applications" type="number" min="1" max="200" class="input-control mono-num" value="30" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-domain-max">Per-Domain Daily Limit</label>
+                    <input id="ob-domain-max" name="per_domain_daily_limit" type="number" min="1" max="50" class="input-control mono-num" value="8" />
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="ob-loc-filter">Location Filter</label>
+                    <select id="ob-loc-filter" name="location_filter" class="input-control">
+                      <option value="remote">remote</option>
+                      <option value="hybrid">hybrid</option>
+                      <option value="any">any</option>
+                    </select>
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-salary">Salary Expectation</label>
+                    <input id="ob-salary" name="salary_expectation" type="text" autocomplete="off" class="input-control" placeholder="Negotiable" />
+                  </div>
+                </div>
+                <div class="checkbox-row">
+                  <label class="checkbox-label"><input type="checkbox" id="ob-allow-contract" name="allow_contract" /> Allow Contract Roles</label>
+                  <label class="checkbox-label"><input type="checkbox" id="ob-allow-internship" name="allow_internship" /> Allow Internships</label>
+                  <label class="checkbox-label"><input type="checkbox" id="ob-relocate" name="willing_to_relocate" /> Willing to Relocate</label>
+                  <label class="checkbox-label"><input type="checkbox" id="ob-headless" name="headless" checked /> Headless Browser Mode</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3: AI BRAIN & SKILLS -->
+            <div class="wizard-pane" data-wiz-pane="3" hidden>
+              <h3 class="panel-title">Step 3 — AI Brain API Keys &amp; Candidate Pitch</h3>
+              <p class="panel-subtitle">Stored in <code>GEMINI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code>, <code>SKILLS_SUMMARY</code>, and <code>ACHIEVEMENTS</code>.</p>
+              <div class="form-stack">
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="ob-gemini-key">Google Gemini API Key (Primary AI)</label>
+                    <input id="ob-gemini-key" name="gemini_api_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="AIzaSy... (leave blank to keep existing)" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-gemini-model">Primary Gemini Model</label>
+                    <select id="ob-gemini-model" name="gemini_model" class="input-control">
+                      <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                      <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                      <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row-3">
+                  <div class="form-field">
+                    <label for="ob-anthropic-key">Anthropic API Key</label>
+                    <input id="ob-anthropic-key" name="anthropic_api_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="sk-ant-..." />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-openai-key">OpenAI API Key</label>
+                    <input id="ob-openai-key" name="openai_api_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="sk-proj-..." />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-serpapi-key">SerpAPI Key</label>
+                    <input id="ob-serpapi-key" name="serpapi_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="serpapi_..." />
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="ob-skills">Core Skills Summary</label>
+                  <textarea id="ob-skills" name="skills_summary" rows="2" class="input-control" placeholder="Python, FastAPI, LangGraph, GCP, GenAI &amp; LLMs"></textarea>
+                </div>
+                <div class="form-field">
+                  <label for="ob-achievements">Top Quantified Achievements</label>
+                  <textarea id="ob-achievements" name="achievements" rows="2" class="input-control" placeholder="Architected high-throughput AI microservices."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 4: JOB BOARD CREDENTIALS & ALERTS -->
+            <div class="wizard-pane" data-wiz-pane="4" hidden>
+              <h3 class="panel-title">Step 4 — Job Board Credentials &amp; Alert Channels</h3>
+              <p class="panel-subtitle">Serialized into <code>CREDENTIALS</code> JSON, <code>ALERT_EMAIL</code>, and <code>TELEGRAM_*</code> in <code>.env</code>.</p>
+              <div class="form-stack">
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="ob-li-email">LinkedIn Login Email</label>
+                    <input id="ob-li-email" name="linkedin_email" type="email" autocomplete="username" class="input-control" placeholder="linkedin@example.com" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-li-pass">LinkedIn Password</label>
+                    <input id="ob-li-pass" name="linkedin_password" type="password" autocomplete="current-password" class="input-control" placeholder="••••••••" />
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="ob-nk-email">Naukri Login Email</label>
+                    <input id="ob-nk-email" name="naukri_email" type="email" autocomplete="username" class="input-control" placeholder="naukri@example.com" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-nk-pass">Naukri Password</label>
+                    <input id="ob-nk-pass" name="naukri_password" type="password" autocomplete="current-password" class="input-control" placeholder="••••••••" />
+                  </div>
+                </div>
+                <div class="form-row-3">
+                  <div class="form-field">
+                    <label for="ob-alert-email">Alert Recipient Email</label>
+                    <input id="ob-alert-email" name="alert_email" type="email" autocomplete="email" class="input-control" placeholder="alerts@example.com" />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-tg-token">Telegram Bot Token</label>
+                    <input id="ob-tg-token" name="telegram_bot_token" type="password" autocomplete="off" class="input-control mono-num" placeholder="123456:ABC..." />
+                  </div>
+                  <div class="form-field">
+                    <label for="ob-tg-chat">Telegram Chat ID</label>
+                    <input id="ob-tg-chat" name="telegram_chat_id" type="text" autocomplete="off" class="input-control mono-num" placeholder="987654321" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="wizard-footer">
+              <button type="button" class="btn btn--subtle" id="btn-wiz-prev" hidden>← Previous Step</button>
+              <span class="mono-num text-muted" id="wiz-step-indicator">Step 1 of 4</span>
+              <div class="row-actions">
+                <button type="button" class="btn btn--accent" id="btn-wiz-next">Next Step →</button>
+                <button type="submit" class="btn btn--primary" id="btn-wiz-submit">Save All to .env &amp; Launch Console</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- VIEW 1: CONTROL ROOM (OVERVIEW) -->
+      <section id="view-overview" role="tabpanel" aria-labelledby="tab-overview" class="view-panel" hidden>
+        <div class="hero-command">
+          <div class="hero-command__left">
+            <div class="eyebrow-chip">
+              <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+              <span>LANGGRAPH + GEMINI 2.5 PRO + STEALTH PLAYWRIGHT</span>
+            </div>
+            <h1 class="page-title">Autonomous Job Control Room</h1>
+            <p class="page-subtitle">
+              Real-time orchestration for AI job qualification, tailored cover letter synthesis, and human-timed ATS submissions.
+            </p>
+          </div>
+
+          <div class="hero-command__right">
+            <div class="execution-card" aria-label="Agent Execution Controls">
+              <div class="execution-card__top">
+                <div>
+                  <span class="execution-label">Execution Mode</span>
+                  <div class="mode-selector" role="group" aria-label="Select agent run mode">
+                    <button type="button" class="mode-pill is-selected" data-mode="dry_run" id="mode-dry-run">Dry Run</button>
+                    <button type="button" class="mode-pill" data-mode="live" id="mode-live">Live Auto</button>
+                    <button type="button" class="mode-pill" data-mode="single_link" id="mode-single-link">Single URL</button>
+                  </div>
+                </div>
+                <div class="execution-actions">
+                  <button type="button" class="btn btn--primary" id="btn-run-agent">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <span id="btn-run-label">Launch Session</span>
+                  </button>
+                  <button type="button" class="btn btn--ghost" id="btn-stop-agent" hidden>
+                    <span>Stop</span>
+                  </button>
+                </div>
+              </div>
+
+              <form id="single-link-form" class="single-link-bar" hidden>
+                <label for="single-link-input" class="sr-only">Target Job URL</label>
+                <input id="single-link-input" type="url" autocomplete="url" class="input-control" placeholder="https://www.linkedin.com/jobs/view/..." />
+                <button type="submit" class="btn btn--accent">Apply URL</button>
+              </form>
+
+              <div class="progress-strip" aria-live="polite">
+                <div class="progress-strip__meta">
+                  <span id="runtime-step-text">Standing by — Scheduler armed (08:00–21:00 window)</span>
+                  <span class="mono-num" id="runtime-pct-text">0%</span>
+                </div>
+                <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="runtime-progressbar">
+                  <div class="progress-fill" id="runtime-progress-fill" style="transform: scaleX(0);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI Telemetry Grid -->
+        <div class="kpi-grid" aria-label="Application Telemetry">
+          <article class="kpi-card">
+            <div class="kpi-card__head">
+              <span class="kpi-label">Applications Submitted</span>
+              <span class="kpi-tag kpi-tag--blue" id="kpi-quota-badge">0 / 30 daily cap</span>
+            </div>
+            <div class="kpi-value mono-num" id="kpi-applied">0</div>
+            <p class="kpi-foot">Idempotent SHA-256 deduplicated submissions</p>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-card__head">
+              <span class="kpi-label">Qualification &amp; Submit Rate</span>
+              <span class="kpi-tag kpi-tag--emerald">Verified</span>
+            </div>
+            <div class="kpi-value mono-num" id="kpi-success-rate">100%</div>
+            <p class="kpi-foot">Across LinkedIn, Naukri, Greenhouse &amp; Lever</p>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-card__head">
+              <span class="kpi-label">Priority Queue Pending</span>
+              <span class="kpi-tag kpi-tag--cobalt">P1–P3 Ready</span>
+            </div>
+            <div class="kpi-value mono-num" id="kpi-queue">0</div>
+            <p class="kpi-foot">Scheduled for autonomous processing</p>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-card__head">
+              <span class="kpi-label">Safety &amp; Guardrail Skips</span>
+              <span class="kpi-tag kpi-tag--amber" id="kpi-failed-tag">0 CAPTCHA</span>
+            </div>
+            <div class="kpi-value mono-num" id="kpi-skipped">0</div>
+            <p class="kpi-foot">Respects robots.txt &amp; halts on sensitive fields</p>
+          </article>
+        </div>
+
+        <!-- ZONE 3: Primary Operations Split (Left: Interactive Bot Studio | Right: Live Telemetry & Analytics) -->
+        <div class="control-studio-split">
+          <!--Redesigned Interactive Autonomous Bot Studio & Configuration Deck -->
+          <article class="panel-card bot-studio-shell">
+            <div class="panel-card__head">
+              <div>
+                <div class="eyebrow-chip">
+                  <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+                  <span>STEP 1: SELECT ENGINE · STEP 2: CONFIGURE &amp; LAUNCH</span>
+                </div>
+                <h2 class="panel-title">Autonomous Bots &amp; Outreach Command Deck</h2>
+                <p class="panel-subtitle">Click any engine below to configure its parameters in <code>.env</code> and launch</p>
+              </div>
+              <span class="kpi-tag kpi-tag--emerald" id="active-bot-indicator">Active Engine: Naukri Direct + Chatbot</span>
+            </div>
+
+          <!-- Sleek Segmented Bot Selector Tiles -->
+          <div class="bot-selector-dock" role="tablist" aria-label="Select Autonomous Bot Engine">
+            <button type="button" role="tab" aria-selected="true" class="bot-tile is-selected" data-select-bot="naukri_bot">
+              <div class="bot-tile__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              </div>
+              <div class="bot-tile__body">
+                <span class="bot-tile__tag">naukri_bot.py</span>
+                <strong class="bot-tile__name">Naukri Direct + Chatbot</strong>
+                <span class="bot-tile__meta">Boolean Search · AI Q&amp;A Solver</span>
+              </div>
+              <span class="bot-tile__dot" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" role="tab" aria-selected="false" class="bot-tile" data-select-bot="linkedin_bot">
+              <div class="bot-tile__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              </div>
+              <div class="bot-tile__body">
+                <span class="bot-tile__tag">linkedin_bot.py</span>
+                <strong class="bot-tile__name">LinkedIn Easy Apply + DM</strong>
+                <span class="bot-tile__meta">Easy Apply · Referral Outreach</span>
+              </div>
+              <span class="bot-tile__dot" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" role="tab" aria-selected="false" class="bot-tile" data-select-bot="naukri_profile_hack">
+              <div class="bot-tile__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <div class="bot-tile__body">
+                <span class="bot-tile__tag">profile_hack_9am</span>
+                <strong class="bot-tile__name">Naukri 9 AM Rank Boost</strong>
+                <span class="bot-tile__meta">Headline Freshness Index</span>
+              </div>
+              <span class="bot-tile__dot" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" role="tab" aria-selected="false" class="bot-tile" data-select-bot="email_scraper">
+              <div class="bot-tile__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <div class="bot-tile__body">
+                <span class="bot-tile__tag">Scenario A</span>
+                <strong class="bot-tile__name">Recruiter Email Scraper</strong>
+                <span class="bot-tile__meta">Regex JD &amp; HR Extractor</span>
+              </div>
+              <span class="bot-tile__dot" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" role="tab" aria-selected="false" class="bot-tile" data-select-bot="cold_email">
+              <div class="bot-tile__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="bot-tile__body">
+                <span class="bot-tile__tag">SMTP + Gemini</span>
+                <strong class="bot-tile__name">Cold Email Dispatcher</strong>
+                <span class="bot-tile__meta">CV-Attached Outreach</span>
+              </div>
+              <span class="bot-tile__dot" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" role="tab" aria-selected="false" class="bot-tile" data-select-bot="single_link">
+              <div class="bot-tile__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </div>
+              <div class="bot-tile__body">
+                <span class="bot-tile__tag">--link Sniper</span>
+                <strong class="bot-tile__name">Single Job URL Sniper</strong>
+                <span class="bot-tile__meta">Instant Targeted Apply</span>
+              </div>
+              <span class="bot-tile__dot" aria-hidden="true"></span>
+            </button>
+          </div>
+          <!-- Dynamic Bot Configuration & Execution Stage -->
+          <div class="bot-config-stage" id="bot-config-stage">
+            <!-- PANEL 1: NAUKRI BOT CONFIGURATION & LAUNCHER (DEFAULT ACTIVE) -->
+            <form class="bot-config-pane" data-bot-pane="naukri_bot" data-bot-form="naukri_bot">
+              <div class="bot-config-head">
+                <div>
+                  <h3 class="panel-title">Naukri Direct + AI Chatbot Solver Configuration (<code>naukri_bot.py</code>)</h3>
+                  <p class="panel-subtitle">Configure Naukri login credentials, Boolean search queries, and Gemini 2.5 Pro screening parameters</p>
+                </div>
+                <span class="kpi-tag kpi-tag--emerald">Scenario A &amp; C Ready</span>
+              </div>
+              <div class="form-stack">
+                <div class="form-row-3">
+                  <div class="form-field">
+                    <label for="bot-nk-email">Naukri Login Email (<code>CREDENTIALS</code>)</label>
+                    <input id="bot-nk-email" name="naukri_email" type="email" autocomplete="username" required class="input-control" placeholder="naukri@example.com" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-nk-pass">Naukri Password</label>
+                    <input id="bot-nk-pass" name="naukri_password" type="password" autocomplete="current-password" class="input-control" placeholder="•••••••• (saved to .env)" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-nk-model">Chatbot AI Solver Model</label>
+                    <select id="bot-nk-model" name="gemini_model" class="input-control">
+                      <option value="gemini-2.5-pro">gemini-2.5-pro (Recommended)</option>
+                      <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                      <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row-3">
+                  <div class="form-field">
+                    <label for="bot-nk-exp">Total Experience (Chatbot Q&amp;A)</label>
+                    <input id="bot-nk-exp" name="experience_range" type="text" autocomplete="off" class="input-control" placeholder="e.g. 2 years" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-nk-ctc">Expected CTC / Salary</label>
+                    <input id="bot-nk-ctc" name="salary_expectation" type="text" autocomplete="off" class="input-control" placeholder="e.g. 18 LPA / Negotiable" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-nk-notice">Notice Period / Start Date</label>
+                    <input id="bot-nk-notice" name="available_start_date" type="text" autocomplete="off" class="input-control" placeholder="Immediately / 15 Days" />
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="bot-nk-queries">Boolean Search Queries (<code>NAUKRI_QUERIES</code> — separated by <code>||</code>)</label>
+                  <textarea id="bot-nk-queries" name="naukri_queries" rows="2" class="input-control mono-num"></textarea>
+                </div>
+                <div class="wizard-footer">
+                  <span class="text-muted">Uses stored CV from <code>RESUME_PATH</code> &amp; logs recruiter emails to <code>recruiters.csv</code></span>
+                  <div class="row-actions">
+                    <button type="button" class="btn btn--subtle" data-save-bot-only="naukri_bot">Save Config Only</button>
+                    <button type="submit" class="btn btn--primary">Save Config &amp; Launch Naukri Bot →</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- PANEL 2: LINKEDIN BOT CONFIGURATION & LAUNCHER -->
+            <form class="bot-config-pane" data-bot-pane="linkedin_bot" data-bot-form="linkedin_bot" hidden>
+              <div class="bot-config-head">
+                <div>
+                  <h3 class="panel-title">LinkedIn Easy Apply &amp; Recruiter Outreach Configuration (<code>linkedin_bot.py</code>)</h3>
+                  <p class="panel-subtitle">Configure LinkedIn credentials, daily safety cap, target roles, and Scenario B connection/referral templates</p>
+                </div>
+                <span class="kpi-tag kpi-tag--blue">Scenario A / B / C</span>
+              </div>
+              <div class="form-stack">
+                <div class="form-row-3">
+                  <div class="form-field">
+                    <label for="bot-li-email">LinkedIn Login Email</label>
+                    <input id="bot-li-email" name="linkedin_email" type="email" autocomplete="username" required class="input-control" placeholder="linkedin@example.com" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-li-pass">LinkedIn Password</label>
+                    <input id="bot-li-pass" name="linkedin_password" type="password" autocomplete="current-password" class="input-control" placeholder="•••••••• (saved to .env)" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-li-limit">LinkedIn Daily Safety Cap</label>
+                    <input id="bot-li-limit" name="per_domain_daily_limit" type="number" min="1" max="30" class="input-control mono-num" value="8" />
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="bot-li-roles">Target Job Titles (<code>ROLES</code>)</label>
+                    <input id="bot-li-roles" name="roles" type="text" autocomplete="off" class="input-control" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-li-loc">Location Filter (<code>LOCATION_FILTER</code>)</label>
+                    <select id="bot-li-loc" name="location_filter" class="input-control">
+                      <option value="remote">remote</option>
+                      <option value="hybrid">hybrid</option>
+                      <option value="any">any</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="bot-li-note">Recruiter / Alumni Connection Note (&le;300 chars — <code>LINKEDIN_CONNECT_NOTE</code>)</label>
+                  <textarea id="bot-li-note" name="linkedin_connect_note" rows="2" maxlength="300" class="input-control"></textarea>
+                </div>
+                <div class="wizard-footer">
+                  <span class="text-muted">Automatically sends connection note + Referral DM after Easy Apply</span>
+                  <div class="row-actions">
+                    <button type="button" class="btn btn--subtle" data-save-bot-only="linkedin_bot">Save Config Only</button>
+                    <button type="submit" class="btn btn--primary">Save Config &amp; Launch LinkedIn Bot →</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- PANEL 3: NAUKRI 9 AM PROFILE HACK CONFIGURATION -->
+            <form class="bot-config-pane" data-bot-pane="naukri_profile_hack" data-bot-form="naukri_profile_hack" hidden>
+              <div class="bot-config-head">
+                <div>
+                  <h3 class="panel-title">Naukri 9 AM Profile Freshness Booster (<code>profile_hack_9am</code>)</h3>
+                  <p class="panel-subtitle">Updates your Naukri Resume Headline to refresh your profile modification timestamp for recruiter visibility</p>
+                </div>
+                <span class="kpi-tag kpi-tag--amber">Freshness Index #1</span>
+              </div>
+              <div class="form-stack">
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="bot-hack-email">Naukri Account Email</label>
+                    <input id="bot-hack-email" name="naukri_email" type="email" autocomplete="username" class="input-control" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-hack-headline">Resume Headline Text (<code>NAUKRI_HEADLINE</code>)</label>
+                    <input id="bot-hack-headline" name="naukri_headline" type="text" autocomplete="off" class="input-control" />
+                  </div>
+                </div>
+                <div class="wizard-footer">
+                  <span class="text-muted">Toggles trailing period on your headline to trigger Naukri's daily active candidate boost</span>
+                  <div class="row-actions">
+                    <button type="submit" class="btn btn--primary">Save &amp; Trigger 9 AM Profile Boost →</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <!-- PANEL 4: RECRUITER EMAIL SCRAPER CONFIGURATION -->
+            <form class="bot-config-pane" data-bot-pane="email_scraper" data-bot-form="email_scraper" hidden>
+              <div class="bot-config-head">
+                <div>
+                  <h3 class="panel-title">Scenario A — Recruiter Email Scraper Configuration (<code>recruiters.csv</code>)</h3>
+                  <p class="panel-subtitle">Configure target roles &amp; SerpAPI discovery key for automated JD recruiter email extraction</p>
+                </div>
+                <span class="kpi-tag kpi-tag--cobalt">Regex + SerpAPI</span>
+              </div>
+              <div class="form-stack">
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="bot-sc-roles">Target Roles to Crawl (<code>ROLES</code>)</label>
+                    <input id="bot-sc-roles" name="roles" type="text" autocomplete="off" class="input-control" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-sc-serp">SerpAPI Key (<code>SERPAPI_KEY</code>)</label>
+                    <input id="bot-sc-serp" name="serpapi_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="Leave blank to keep existing key" />
+                  </div>
+                </div>
+                <div class="wizard-footer">
+                  <span class="text-muted">Scans queued JDs &amp; populates the Scraped Recruiters table below</span>
+                  <div class="row-actions">
+                    <button type="submit" class="btn btn--primary">Save Config &amp; Run Email Scraper →</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <!-- PANEL 5: COLD EMAIL & REFERRAL DISPATCHER CONFIGURATION -->
+            <form class="bot-config-pane" data-bot-pane="cold_email" data-bot-form="cold_email" hidden>
+              <div class="bot-config-head">
+                <div>
+                  <h3 class="panel-title">Cold Email &amp; Referral Campaign Configuration (<code>SMTP + Gemini</code>)</h3>
+                  <p class="panel-subtitle">Configure SMTP credentials, subject template, and candidate pitch referencing your stored CV</p>
+                </div>
+                <span class="kpi-tag kpi-tag--emerald">CV Auto-Referenced</span>
+              </div>
+              <div class="form-stack">
+                <div class="form-row-3">
+                  <div class="form-field">
+                    <label for="bot-ce-host">SMTP Host (<code>SMTP_HOST</code>)</label>
+                    <input id="bot-ce-host" name="smtp_host" type="text" autocomplete="off" class="input-control mono-num" placeholder="smtp.gmail.com" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-ce-user">SMTP Sender Email (<code>SMTP_USER</code>)</label>
+                    <input id="bot-ce-user" name="smtp_user" type="email" autocomplete="email" class="input-control" placeholder="you@gmail.com" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-ce-pass">SMTP App Password (<code>SMTP_PASS</code>)</label>
+                    <input id="bot-ce-pass" name="smtp_pass" type="password" autocomplete="current-password" class="input-control" placeholder="••••••••••••" />
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="bot-ce-subject">Cold Email Subject Template (<code>COLD_EMAIL_SUBJECT</code>)</label>
+                    <input id="bot-ce-subject" name="cold_email_subject" type="text" autocomplete="off" class="input-control" />
+                  </div>
+                  <div class="form-field">
+                    <label for="bot-ce-skills">Core Pitch Skills (<code>SKILLS_SUMMARY</code>)</label>
+                    <input id="bot-ce-skills" name="skills_summary" type="text" autocomplete="off" class="input-control" />
+                  </div>
+                </div>
+                <div class="wizard-footer">
+                  <span class="text-muted">Attaches/references your stored CV from <code>RESUME_PATH</code></span>
+                  <div class="row-actions">
+                    <button type="button" class="btn btn--subtle" data-save-bot-only="cold_email">Save SMTP Config</button>
+                    <button type="submit" class="btn btn--primary">Save Config &amp; Dispatch Cold Emails →</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- PANEL 6: SINGLE JOB LINK SNIPER -->
+            <form class="bot-config-pane" data-bot-pane="single_link" id="bot-single-sniper-form" hidden>
+              <div class="bot-config-head">
+                <div>
+                  <h3 class="panel-title">Single Job URL Sniper (<code>--link</code> Mode)</h3>
+                  <p class="panel-subtitle">Paste any LinkedIn, Naukri, Greenhouse, Lever, or Workday job URL for immediate execution</p>
+                </div>
+                <span class="kpi-tag kpi-tag--blue">Targeted Apply</span>
+              </div>
+              <div class="form-stack">
+                <div class="form-field">
+                  <label for="bot-sniper-url">Target Job Posting URL</label>
+                  <input id="bot-sniper-url" name="target_url" type="url" autocomplete="url" required class="input-control" placeholder="https://www.linkedin.com/jobs/view/... or https://www.naukri.com/job-listings-..." />
+                </div>
+                <div class="wizard-footer">
+                  <span class="text-muted">Runs AI qualification, cover letter synthesis &amp; ATS form fill for this URL</span>
+                  <div class="row-actions">
+                    <button type="submit" class="btn btn--primary">Qualify &amp; Apply to URL Now →</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+
+
+          </div>
+          </article>
+
+          <!-- Right Column: Live Telemetry Terminal + 7-Day Velocity (Always visible beside the Bot Studio) -->
+          <div class="control-monitor-stack">
+            <article class="panel-card bento-card--terminal">
+              <div class="panel-card__head">
+                <div>
+                  <h2 class="panel-title">Live Agent Telemetry Stream</h2>
+                  <p class="panel-subtitle">Real-time Playwright stealth engine &amp; bot execution output</p>
+                </div>
+                <span class="terminal-badge mono-num" id="terminal-mode-badge">DRY_RUN</span>
+              </div>
+              <div class="terminal-window" id="live-terminal" role="log" aria-live="polite" aria-label="Agent execution log"></div>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-card__head">
+                <div>
+                  <h2 class="panel-title">7-Day Velocity &amp; ATS Share</h2>
+                  <p class="panel-subtitle">Daily submissions &amp; platform breakdown</p>
+                </div>
+                <div class="chart-legend" aria-hidden="true">
+                  <span class="legend-item"><i class="legend-dot legend-dot--blue"></i>Applied</span>
+                  <span class="legend-item"><i class="legend-dot legend-dot--slate"></i>Skipped</span>
+                </div>
+              </div>
+              <div class="velocity-layout">
+                <div class="chart-stage" id="velocity-chart" role="img" aria-label="Bar chart of applications over the last 7 days"></div>
+                <div class="ats-list" id="ats-breakdown-list" aria-label="ATS Platform Breakdown"></div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- ZONE 4: Interactive Email Scraper & Cold Email Outreach Workspace -->
+        <div class="bento-grid" id="outreach-studio-grid">
+          <article class="panel-card">
+            <div class="panel-card__head">
+              <div>
+                <div class="eyebrow-chip">
+                  <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+                  <span>SCENARIO A · REGEX EMAIL EXTRACTOR</span>
+                </div>
+                <h2 class="panel-title">Recruiter Email Scraper Studio</h2>
+                <p class="panel-subtitle">Paste any Job Description or recruiter post to extract emails &amp; auto-draft cold pitches</p>
+              </div>
+            </div>
+            <form id="email-scraper-form" class="form-stack">
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="sc-company">Target Company</label>
+                  <input id="sc-company" name="company" type="text" autocomplete="organization" required class="input-control" placeholder="e.g. Stripe / Anthropic" />
+                </div>
+                <div class="form-field">
+                  <label for="sc-role">Target Role</label>
+                  <input id="sc-role" name="job_title" type="text" autocomplete="off" required class="input-control" placeholder="e.g. Senior AI Backend Engineer" />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="sc-text">Job Description Text or Recruiter Post (Emails extracted via Regex)</label>
+                <textarea id="sc-text" name="text" rows="3" required class="input-control" placeholder="Paste JD text here, e.g. 'Send your resume to hiring.ai@stripe.com or talent@stripe.com for immediate consideration...'"></textarea>
+              </div>
+              <div class="row-actions">
+                <button type="submit" class="btn btn--primary btn--sm">Scrape Emails &amp; Generate Cold Pitch</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel-card">
+            <div class="panel-card__head">
+              <div>
+                <div class="eyebrow-chip">
+                  <span class="eyebrow-chip__dot" aria-hidden="true"></span>
+                  <span>COLD EMAIL &amp; REFERRAL LEDGER</span>
+                </div>
+                <h2 class="panel-title">Scraped Recruiters &amp; Cold Email Dispatcher</h2>
+                <p class="panel-subtitle">One-click cold email dispatch with your stored CV (<code>RESUME_PATH</code>)</p>
+              </div>
+              <button type="button" class="btn btn--accent btn--sm" id="btn-send-all-cold">Email All Pending</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Recruiter / Email</th>
+                    <th scope="col">Company &amp; Role</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Cold Email</th>
+                  </tr>
+                </thead>
+                <tbody id="recruiters-tbody"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <!-- Recent Applications Table in Control Room -->
+        <article class="panel-card">
+          <div class="panel-card__head">
+            <div>
+              <h2 class="panel-title">Recent Autonomous Submissions</h2>
+              <p class="panel-subtitle">Click any record to inspect AI qualification notes, confirmation ID, and cover letter</p>
+            </div>
+            <button type="button" class="btn btn--subtle" data-jump-view="ledger">View All Ledger</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Role &amp; Company</th>
+                  <th scope="col">ATS / Source</th>
+                  <th scope="col">Location</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Confirmation</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody id="overview-recent-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- VIEW 2: JOB QUEUE -->
+      <section id="view-queue" role="tabpanel" aria-labelledby="tab-queue" class="view-panel" hidden>
+        <div class="section-header">
+          <div>
+            <h2 class="page-title">Prioritized Job Discovery Queue</h2>
+            <p class="page-subtitle">Jobs discovered by SerpAPI, LinkedIn &amp; Naukri crawlers awaiting scheduled submission.</p>
+          </div>
+        </div>
+
+        <article class="panel-card">
+          <h3 class="panel-title">Enqueue New Target Role</h3>
+          <form id="queue-add-form" class="queue-form">
+            <div class="form-field">
+              <label for="q-title">Job Title</label>
+              <input id="q-title" name="job_title" type="text" autocomplete="off" required class="input-control" placeholder="e.g. Staff AI Backend Engineer" />
+            </div>
+            <div class="form-field">
+              <label for="q-company">Company</label>
+              <input id="q-company" name="company" type="text" autocomplete="organization" required class="input-control" placeholder="e.g. OpenAI / Stripe" />
+            </div>
+            <div class="form-field form-field--wide">
+              <label for="q-url">Job Application URL</label>
+              <input id="q-url" name="job_url" type="url" autocomplete="url" required class="input-control" placeholder="https://www.linkedin.com/jobs/view/..." />
+            </div>
+            <div class="form-field form-field--compact">
+              <label for="q-priority">Priority</label>
+              <select id="q-priority" name="priority" class="input-control">
+                <option value="1">P1 — Immediate</option>
+                <option value="2" selected>P2 — High</option>
+                <option value="3">P3 — Standard</option>
+                <option value="4">P4 — Low</option>
+              </select>
+            </div>
+            <div class="form-field form-field--action">
+              <button type="submit" class="btn btn--primary">Add to Queue</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel-card">
+          <div class="panel-card__head">
+            <h3 class="panel-title">Queued Targets</h3>
+            <span class="mono-num text-muted" id="queue-count-label">0 items</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Priority</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Company</th>
+                  <th scope="col">Source Domain</th>
+                  <th scope="col">Queue Status</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="queue-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- VIEW 3: APPLICATIONS LEDGER -->
+      <section id="view-ledger" role="tabpanel" aria-labelledby="tab-ledger" class="view-panel" hidden>
+        <div class="section-header">
+          <div>
+            <h2 class="page-title">Applications Audit Ledger</h2>
+            <p class="page-subtitle">Complete SHA-256 deduplicated log of every job application attempt, ATS handler, and confirmation code.</p>
+          </div>
+          <div class="ledger-controls">
+            <div class="search-box">
+              <label for="ledger-search" class="sr-only">Search applications</label>
+              <input id="ledger-search" type="search" autocomplete="off" class="input-control" placeholder="Search role, company, ATS..." />
+            </div>
+            <div class="filter-group" role="group" aria-label="Filter by status">
+              <button type="button" class="filter-chip is-active" data-status-filter="all">All</button>
+              <button type="button" class="filter-chip" data-status-filter="applied">Applied</button>
+              <button type="button" class="filter-chip" data-status-filter="skipped">Skipped</button>
+              <button type="button" class="filter-chip" data-status-filter="failed">Failed</button>
+            </div>
+          </div>
+        </div>
+
+        <article class="panel-card">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Timestamp</th>
+                  <th scope="col">Job Title</th>
+                  <th scope="col">Company</th>
+                  <th scope="col">ATS / Site</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Confirmation ID</th>
+                  <th scope="col">Inspect</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- VIEW 4: CANDIDATE PROFILE & AI BRAIN -->
+      <section id="view-profile" role="tabpanel" aria-labelledby="tab-profile" class="view-panel" hidden>
+        <div class="section-header">
+          <div>
+            <h2 class="page-title">Candidate Identity &amp; AI Brain Configuration</h2>
+            <p class="page-subtitle">Synchronized directly with <code>.env</code> and Pydantic settings for tailored cover letters and ATS answers.</p>
+          </div>
+        </div>
+
+        <form id="profile-config-form" class="settings-grid">
+          <article class="panel-card">
+            <h3 class="panel-title">Candidate Identity</h3>
+            <div class="form-stack">
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-full-name">Full Name</label>
+                  <input id="cfg-full-name" name="full_name" type="text" autocomplete="name" required class="input-control" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-email">Email Address</label>
+                  <input id="cfg-email" name="email" type="email" autocomplete="email" required class="input-control" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-phone">Phone Number</label>
+                  <input id="cfg-phone" name="phone" type="tel" autocomplete="tel" class="input-control" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-location">Primary Location</label>
+                  <input id="cfg-location" name="location" type="text" autocomplete="address-level2" class="input-control" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-linkedin">LinkedIn Profile URL</label>
+                  <input id="cfg-linkedin" name="linkedin_url" type="url" autocomplete="url" class="input-control" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-github">GitHub Profile URL</label>
+                  <input id="cfg-github" name="github_url" type="url" autocomplete="url" class="input-control" />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="cfg-resume">CV / Resume PDF (Stored &amp; bound to <code>RESUME_PATH</code>)</label>
+                <div class="resume-upload-box">
+                  <div class="resume-upload-row">
+                    <input id="cfg-resume" name="resume_path" type="text" autocomplete="off" class="input-control mono-num" />
+                    <label for="cfg-resume-file" class="btn btn--accent resume-file-btn">
+                      <span>Attach / Replace CV</span>
+                    </label>
+                    <input id="cfg-resume-file" type="file" accept=".pdf,.doc,.docx,application/pdf" class="sr-only" />
+                  </div>
+                  <div class="resume-status-bar">
+                    <span class="kpi-tag kpi-tag--cobalt" id="cfg-resume-badge">Checking stored CV...</span>
+                    <a href="/api/resume/current" target="_blank" rel="noopener noreferrer" class="footer-link" id="cfg-resume-preview" hidden>View Stored CV ↗</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel-card">
+            <h3 class="panel-title">Target Roles, Quotas &amp; AI Models</h3>
+            <div class="form-stack">
+              <div class="form-field">
+                <label for="cfg-roles">Target Roles (comma-separated)</label>
+                <input id="cfg-roles" name="roles" type="text" autocomplete="off" class="input-control" />
+              </div>
+              <div class="form-row-3">
+                <div class="form-field">
+                  <label for="cfg-exp">Experience Range</label>
+                  <input id="cfg-exp" name="experience_range" type="text" autocomplete="off" class="input-control" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-daily-max">Daily Max Cap</label>
+                  <input id="cfg-daily-max" name="daily_max_applications" type="number" min="1" max="200" class="input-control mono-num" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-domain-max">Per-Domain Cap</label>
+                  <input id="cfg-domain-max" name="per_domain_daily_limit" type="number" min="1" max="50" class="input-control mono-num" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-gemini-model">Primary Gemini Model</label>
+                  <select id="cfg-gemini-model" name="gemini_model" class="input-control">
+                    <option value="gemini-2.5-pro">gemini-2.5-pro (Recommended)</option>
+                    <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                    <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="cfg-loc-filter">Location Filter</label>
+                  <select id="cfg-loc-filter" name="location_filter" class="input-control">
+                    <option value="remote">Remote Only</option>
+                    <option value="hybrid">Hybrid</option>
+                    <option value="any">Any / Global</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="cfg-skills">Core Skills Summary</label>
+                <textarea id="cfg-skills" name="skills_summary" rows="2" class="input-control"></textarea>
+              </div>
+              <div class="form-field">
+                <label for="cfg-achievements">Key Quantified Achievements</label>
+                <textarea id="cfg-achievements" name="achievements" rows="2" class="input-control"></textarea>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel-card">
+            <h3 class="panel-title">Environment Secrets &amp; AI Keys (<code>.env</code>)</h3>
+            <div class="form-stack">
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-gemini-key">Gemini API Key (<code>GEMINI_API_KEY</code>)</label>
+                  <input id="cfg-gemini-key" name="gemini_api_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="Leave blank to keep existing key" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-serpapi-key">SerpAPI Key (<code>SERPAPI_KEY</code>)</label>
+                  <input id="cfg-serpapi-key" name="serpapi_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="Leave blank to keep existing key" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-anthropic-key">Anthropic API Key (<code>ANTHROPIC_API_KEY</code>)</label>
+                  <input id="cfg-anthropic-key" name="anthropic_api_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="Leave blank to keep existing key" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-openai-key">OpenAI API Key (<code>OPENAI_API_KEY</code>)</label>
+                  <input id="cfg-openai-key" name="openai_api_key" type="password" autocomplete="off" class="input-control mono-num" placeholder="Leave blank to keep existing key" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-work-auth">Work Authorization</label>
+                  <input id="cfg-work-auth" name="work_authorization" type="text" autocomplete="off" class="input-control" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-start-date">Available Start / Notice</label>
+                  <input id="cfg-start-date" name="available_start_date" type="text" autocomplete="off" class="input-control" />
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel-card">
+            <h3 class="panel-title">Job Board Credentials &amp; Alerts (<code>.env</code>)</h3>
+            <div class="form-stack">
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-li-email">LinkedIn Email</label>
+                  <input id="cfg-li-email" name="linkedin_email" type="email" autocomplete="username" class="input-control" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-li-pass">LinkedIn Password</label>
+                  <input id="cfg-li-pass" name="linkedin_password" type="password" autocomplete="current-password" class="input-control" placeholder="••••••••" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-nk-email">Naukri Email</label>
+                  <input id="cfg-nk-email" name="naukri_email" type="email" autocomplete="username" class="input-control" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-nk-pass">Naukri Password</label>
+                  <input id="cfg-nk-pass" name="naukri_password" type="password" autocomplete="current-password" class="input-control" placeholder="••••••••" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="cfg-alert-email">Alert Email (<code>ALERT_EMAIL</code>)</label>
+                  <input id="cfg-alert-email" name="alert_email" type="email" autocomplete="email" class="input-control" />
+                </div>
+                <div class="form-field">
+                  <label for="cfg-tg-chat">Telegram Chat ID</label>
+                  <input id="cfg-tg-chat" name="telegram_chat_id" type="text" autocomplete="off" class="input-control mono-num" />
+                </div>
+              </div>
+              <div class="form-actions-bar">
+                <button type="submit" class="btn btn--primary">Save All Profile &amp; .env Configuration</button>
+              </div>
+            </div>
+          </article>
+        </form>
+      </section>
+
+      <!-- VIEW 5: SECURITY, HTTPS & INTEGRATIONS -->
+      <section id="view-security" role="tabpanel" aria-labelledby="tab-security" class="view-panel" hidden>
+        <div class="section-header">
+          <div>
+            <h2 class="page-title">HTTPS Security Posture &amp; Platform Integrations</h2>
+            <p class="page-subtitle">Production transport hardening, security headers, and encrypted job board connectors.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <article class="panel-card">
+            <div class="panel-card__head">
+              <div>
+                <h3 class="panel-title">HTTPS &amp; Transport Hardening Audit</h3>
+                <p class="panel-subtitle">Verified against Front-End Checklist <code>https</code> &amp; security rules</p>
+              </div>
+              <span class="kpi-tag kpi-tag--emerald">A+ Ready</span>
+            </div>
+            <ul class="security-checklist" id="security-checklist">
+              <li class="security-item">
+                <span class="security-check" aria-hidden="true">✓</span>
+                <div>
+                  <strong>Strict-Transport-Security (HSTS)</strong>
+                  <p><code>max-age=63072000; includeSubDomains; preload</code> active on all responses.</p>
+                </div>
+              </li>
+              <li class="security-item">
+                <span class="security-check" aria-hidden="true">✓</span>
+                <div>
+                  <strong>HTTP → HTTPS 301 Permanent Redirect</strong>
+                  <p>Automatic <code>301 Moved Permanently</code> redirect when <code>X-Forwarded-Proto: http</code> or <code>FORCE_HTTPS=true</code>.</p>
+                </div>
+              </li>
+              <li class="security-item">
+                <span class="security-check" aria-hidden="true">✓</span>
+                <div>
+                  <strong>Content-Security-Policy &amp; Framing Protection</strong>
+                  <p>Strict <code>default-src 'self'</code>, <code>frame-ancestors 'none'</code>, and <code>X-Frame-Options: DENY</code>.</p>
+                </div>
+              </li>
+              <li class="security-item">
+                <span class="security-check" aria-hidden="true">✓</span>
+                <div>
+                  <strong>MIME Sniffing &amp; Referrer Hardening</strong>
+                  <p><code>X-Content-Type-Options: nosniff</code> &amp; <code>Referrer-Policy: strict-origin-when-cross-origin</code>.</p>
+                </div>
+              </li>
+            </ul>
+          </article>
+
+          <article class="panel-card">
+            <h3 class="panel-title">Platform Connectors &amp; Alert Channels</h3>
+            <div class="connector-list" id="connector-status-list"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+    <aside class="inspector-drawer" id="inspector-drawer" aria-label="Application Inspector" aria-hidden="true">
+      <div class="inspector-drawer__head">
+        <div>
+          <span class="eyebrow-chip"><span class="eyebrow-chip__dot"></span><span id="drawer-ats-badge">ATS RECORD</span></span>
+          <h2 class="drawer-title" id="drawer-job-title">Job Title</h2>
+          <p class="drawer-subtitle" id="drawer-company">Company · Location</p>
+        </div>
+        <button type="button" class="icon-btn" id="btn-close-drawer" aria-label="Close inspector drawer">✕</button>
+      </div>
+      <div class="inspector-drawer__body">
+        <div class="drawer-meta-grid">
+          <div class="drawer-meta-box">
+            <span class="drawer-meta-label">Confirmation ID</span>
+            <strong class="mono-num" id="drawer-app-id">—</strong>
+          </div>
+          <div class="drawer-meta-box">
+            <span class="drawer-meta-label">Resume Version</span>
+            <strong class="mono-num" id="drawer-resume">—</strong>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="drawer-status-select">Application Status</label>
+          <select id="drawer-status-select" class="input-control">
+            <option value="applied">applied</option>
+            <option value="skipped">skipped</option>
+            <option value="failed">failed</option>
+            <option value="duplicate">duplicate</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="drawer-note-input">AI Qualification &amp; Execution Note</label>
+          <textarea id="drawer-note-input" rows="3" class="input-control"></textarea>
+        </div>
+        <div class="drawer-section">
+          <h3 class="drawer-section-title">Tailored Cover Letter / Screening Payload</h3>
+          <pre class="drawer-code" id="drawer-cover-letter">No cover letter recorded.</pre>
+        </div>
+        <div class="drawer-actions">
+          <a id="drawer-external-link" href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" class="btn btn--subtle">Open Posting ↗</a>
+          <button type="button" class="btn btn--primary" id="btn-save-drawer">Update Record</button>
+        </div>
+      </div>
+    </aside>
+
+    <footer class="app-footer" role="contentinfo">
+      <div class="app-footer__left">
+        <span>AetherApply Autonomous Job Agent</span>
+        <span aria-hidden="true">·</span>
+        <span>W3C &amp; Front-End Checklist Compliant</span>
+        <span aria-hidden="true">·</span>
+        <span>HTTPS / HSTS Ready</span>
+      </div>
+      <div class="app-footer__right">
+        <a href="#view-security" id="link-privacy" class="footer-link">Privacy &amp; Ethics Policy</a>
+        <a href="#view-security" id="link-terms" class="footer-link">Terms of Service</a>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" role="status" aria-live="polite"></div>
+  <script src="/app.js?v=9.0" defer></script>
+</body>
+</html>
+
+
