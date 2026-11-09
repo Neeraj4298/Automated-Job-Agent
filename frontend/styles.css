@@ -5,58 +5,59 @@
 :root,
 html[data-theme="dark"] {
   color-scheme: dark;
-  /* Official v2.5 Linear Design Tokens */
-  --background: #0B0D12;
-  --surface: #11141B;
-  --surface-card: #151923;
-  --surface-hover: #1B2130;
-  --surface-input: #191F2B;
-  --border: #252B38;
-  --border-strong: #343D50;
-  --primary: #648CFF;
-  --primary-hover: #7B9EFF;
+  /* Contrast-Refined Obsidian Dark Palette */
+  --background: #101319;
+  --surface: #171B24;
+  --surface-card: #1B202B;
+  --surface-hover: #222938;
+  --surface-input: #1E2431;
+  --border: #30394B;
+  --border-strong: #3E4A61;
+  --primary: #7097FF;
+  --primary-hover: #85A7FF;
   --text-primary: #E9ECF3;
-  --text-secondary: #929AAA;
-  --text-muted: #687286;
+  --text-secondary: #929BAD;
+  --text-muted: #6E788C;
   --success: #35C995;
   --warning: #E9B45A;
   --danger: #F16F79;
-  --info: #70A5FF;
+  --info: #7097FF;
 
   /* Mapped Aliases */
   --bg-canvas: var(--background);
   --bg-surface: var(--surface-card);
   --bg-surface-elevated: var(--surface-input);
   --bg-surface-hover: var(--surface-hover);
-  --bg-glass: rgba(17, 20, 27, 0.88);
-  --bg-terminal: #080A0F;
+  --bg-glass: rgba(23, 27, 36, 0.92);
+  --bg-terminal: #0B0E14;
 
   --accent-primary: var(--primary);
   --accent-bright: var(--primary-hover);
   --accent-glow: var(--info);
-  --accent-soft: rgba(100, 140, 255, 0.12);
-  --accent-soft-strong: rgba(100, 140, 255, 0.2);
+  --accent-soft: rgba(112, 151, 255, 0.13);
+  --accent-soft-strong: rgba(112, 151, 255, 0.22);
 
   --border-subtle: var(--border);
   --border-accent: var(--border-strong);
 
-  --status-emerald-bg: rgba(53, 201, 149, 0.12);
+  --status-emerald-bg: rgba(53, 201, 149, 0.14);
   --status-emerald-text: var(--success);
-  --status-emerald-border: rgba(53, 201, 149, 0.28);
+  --status-emerald-border: rgba(53, 201, 149, 0.3);
 
-  --status-amber-bg: rgba(233, 180, 90, 0.12);
+  --status-amber-bg: rgba(233, 180, 90, 0.14);
   --status-amber-text: var(--warning);
-  --status-amber-border: rgba(233, 180, 90, 0.28);
+  --status-amber-border: rgba(233, 180, 90, 0.3);
 
-  --status-rose-bg: rgba(241, 111, 121, 0.12);
+  --status-rose-bg: rgba(241, 111, 121, 0.14);
   --status-rose-text: var(--danger);
-  --status-rose-border: rgba(241, 111, 121, 0.28);
+  --status-rose-border: rgba(241, 111, 121, 0.3);
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --shadow-glow: 0 2px 6px rgba(0, 0, 0, 0.35);
 
-  --orb-opacity: 0.08;
-  --grid-line: rgba(100, 140, 255, 0.025);
+  /* Remove visual grid noise */
+  --orb-opacity: 0.03;
+  --grid-line: transparent;
 }
 
 html[data-theme="light"] {
@@ -2328,6 +2329,264 @@ html[data-theme="light"] .bot-tile__tag {
   .v25-content-container {
     padding: 16px;
   }
+
+/* ==========================================================================
+   UI/UX Enhancements — Layout Refinements, Kanban Pipeline, 3-Layer Agents
+   ========================================================================== */
+
+:root {
+  --dur-fast: 140ms;
+  --dur-med: 180ms;
+}
+
+.v25-sidebar {
+  width: 220px;
+}
+
+.v25-topbar {
+  height: 60px;
+  margin-top: 0;
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+
+.v25-main-column.app-shell {
+  max-width: 1440px;
+  padding: 0;
+}
+
+.v25-main-column .workspace {
+  padding: 28px 32px 36px;
+}
+
+.v25-main-column .app-footer {
+  padding: 16px 32px 24px;
+  margin-top: auto;
+}
+
+.kpi-card,
+.panel-card {
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.kpi-grid,
+.bento-grid {
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.btn {
+  min-height: 36px;
+  padding: 7px 14px;
+  border-radius: 8px;
+}
+
+.btn--sm {
+  min-height: 32px;
+  padding: 5px 11px;
+}
+
+.input-control {
+  min-height: 40px;
+  border-radius: 8px;
+}
+
+/* 1. Overview Full-Width Compact Operational Bar */
+.v26-ops-bar {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.v26-ops-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.v26-ops-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* 2. Applications Kanban Pipeline Board */
+.v26-pipeline-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(210px, 1fr));
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.v26-pipeline-col {
+  background: var(--surface, #171B24);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 12px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.v26-pipeline-col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.v26-pipeline-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color var(--dur-fast) var(--ease-butter), transform var(--dur-fast) var(--ease-butter);
+}
+
+.v26-pipeline-card:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+/* 3. Three-Layer AI Agents Experience & Pre-Flight Preview */
+.v26-agents-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.v26-preflight-box {
+  background: var(--surface, #171B24);
+  border: 1px solid var(--border-accent);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.v26-preflight-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.v26-preflight-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.v26-accordion {
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-surface-elevated);
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.v26-accordion summary {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.v26-accordion-body {
+  padding: 12px 14px 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* 4. Priority Queue Bulk Toolbar & Saved Filter Pills */
+.v26-bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.v26-insight-box {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  border: 1px solid var(--border-accent);
+  font-size: 12.5px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* 5. Ctrl + K Command Palette List */
+.v26-cmd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.v26-cmd-item {
+  appearance: none;
+  border: 1px solid transparent;
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.v26-cmd-item:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-surface-hover);
+}
+
+@media (max-width: 1080px) {
+  .v26-agents-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 }
 
 @media (prefers-reduced-motion: reduce) {

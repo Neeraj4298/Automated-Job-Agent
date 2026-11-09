@@ -552,95 +552,90 @@
         </div>
       </section>
 
-      <!-- SCREEN 1: OVERVIEW (/overview) — Clean Linear Dashboard -->
+      <!-- SCREEN 1: OVERVIEW (/overview) — Full-Width Ops Bar + 4 KPIs (with Qualified Jobs) -->
       <section id="view-overview" role="tabpanel" aria-labelledby="tab-overview" class="view-panel" hidden>
-        <div class="hero-command">
-          <div class="hero-command__left">
-            <h1 class="page-title">Overview</h1>
-            <p class="page-subtitle">Your job search, organized and powered by AI.</p>
+        <!-- First Row: Full-Width Compact Operational Welcome & Agent Controls -->
+        <div class="v26-ops-bar" aria-label="Welcome and Agent Controls">
+          <div class="v26-ops-top">
+            <div>
+              <h1 class="page-title" style="font-size: 24px; margin-bottom: 4px;">Overview</h1>
+              <p class="page-subtitle">Your AI-powered career workspace — Discover · Evaluate · Apply · Track.</p>
+            </div>
+            <div class="v26-ops-controls">
+              <div class="mode-selector" role="group" aria-label="Select agent run mode">
+                <button type="button" class="mode-pill is-selected" data-mode="dry_run" id="mode-dry-run" title="Simulates discovery & qualification without submitting">Dry Run</button>
+                <button type="button" class="mode-pill" data-mode="assisted" id="mode-assisted" title="Prepares applications and queues for your approval">Assisted Apply</button>
+                <button type="button" class="mode-pill" data-mode="live" id="mode-live" title="Submits verified applications within your daily cap">Live Auto</button>
+                <button type="button" class="mode-pill" data-mode="single_link" id="mode-single-link" title="Target a single job URL">Single URL</button>
+              </div>
+              <button type="button" class="btn btn--subtle btn--sm" data-jump-view="discover">Discover Jobs</button>
+              <button type="button" class="btn btn--subtle btn--sm" data-jump-view="agents">AI Agents</button>
+              <button type="button" class="btn btn--subtle btn--sm" data-jump-view="activity">Activity</button>
+              <button type="button" class="btn btn--primary" id="btn-run-agent">
+                <span id="btn-run-label">Start Agent</span>
+              </button>
+              <button type="button" class="btn btn--ghost" id="btn-stop-agent" hidden>
+                <span>Pause</span>
+              </button>
+            </div>
           </div>
 
-          <div class="hero-command__right">
-            <div class="execution-card" aria-label="Agent Command Panel">
-              <div class="execution-card__top">
-                <div>
-                  <span class="execution-label">Agent Execution Mode</span>
-                  <div class="mode-selector" role="group" aria-label="Select agent run mode">
-                    <button type="button" class="mode-pill is-selected" data-mode="dry_run" id="mode-dry-run" title="Simulates discovery & qualification without submitting">Dry Run</button>
-                    <button type="button" class="mode-pill" data-mode="assisted" id="mode-assisted" title="Prepares applications and queues for your approval">Assisted Apply</button>
-                    <button type="button" class="mode-pill" data-mode="live" id="mode-live" title="Submits verified applications within your daily cap">Live Auto</button>
-                    <button type="button" class="mode-pill" data-mode="single_link" id="mode-single-link" title="Target a single job URL">Single URL</button>
-                  </div>
-                </div>
-                <div class="execution-actions">
-                  <button type="button" class="btn btn--subtle btn--sm" data-jump-view="discover">Search Jobs</button>
-                  <button type="button" class="btn btn--subtle btn--sm" data-jump-view="agents">Configure</button>
-                  <button type="button" class="btn btn--subtle btn--sm" data-jump-view="activity">View Activity</button>
-                  <button type="button" class="btn btn--primary" id="btn-run-agent">
-                    <span id="btn-run-label">Start Agent</span>
-                  </button>
-                  <button type="button" class="btn btn--ghost" id="btn-stop-agent" hidden>
-                    <span>Pause</span>
-                  </button>
-                </div>
-              </div>
+          <form id="single-link-form" class="single-link-bar" hidden>
+            <label for="single-link-input" class="sr-only">Target Job URL</label>
+            <input id="single-link-input" type="url" autocomplete="url" class="input-control" placeholder="https://www.linkedin.com/jobs/view/..." />
+            <button type="submit" class="btn btn--accent">Apply URL</button>
+          </form>
 
-              <form id="single-link-form" class="single-link-bar" hidden>
-                <label for="single-link-input" class="sr-only">Target Job URL</label>
-                <input id="single-link-input" type="url" autocomplete="url" class="input-control" placeholder="https://www.linkedin.com/jobs/view/..." />
-                <button type="submit" class="btn btn--accent">Apply URL</button>
-              </form>
-
-              <div class="progress-strip" aria-live="polite">
-                <div class="progress-strip__meta">
-                  <span id="runtime-step-text">Standing by — Next window: 08:00–21:00 local</span>
-                  <span class="mono-num" id="runtime-pct-text">0%</span>
-                </div>
-                <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="runtime-progressbar">
-                  <div class="progress-fill" id="runtime-progress-fill" style="transform: scaleX(0);"></div>
-                </div>
-              </div>
+          <div class="progress-strip" aria-live="polite">
+            <div class="progress-strip__meta">
+              <span id="runtime-step-text">Standing by — Next scheduled window: 08:00–21:00 local</span>
+              <span class="mono-num" id="runtime-pct-text">0%</span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="runtime-progressbar">
+              <div class="progress-fill" id="runtime-progress-fill" style="transform: scaleX(0);"></div>
             </div>
           </div>
         </div>
 
-        <!-- Section B: Four Key Metrics -->
+        <!-- Second Row: Four KPI Cards (Jobs Discovered, Qualified Jobs, Confirmed Applications, Interviews) -->
         <div class="kpi-grid" aria-label="Key Job Search Metrics">
           <article class="kpi-card">
             <div class="kpi-card__head">
               <span class="kpi-label">Jobs Discovered</span>
-              <span class="kpi-tag kpi-tag--cobalt">Unique Roles</span>
+              <span class="kpi-tag kpi-tag--cobalt">Indexed</span>
             </div>
             <div class="kpi-value mono-num" id="kpi-discovered">0</div>
-            <p class="kpi-foot">Indexed across Naukri, LinkedIn &amp; ATS boards</p>
+            <p class="kpi-foot">Total unique roles across connected sources</p>
           </article>
 
           <article class="kpi-card">
             <div class="kpi-card__head">
-              <span class="kpi-label">Applications Submitted</span>
-              <span class="kpi-tag kpi-tag--emerald" id="kpi-quota-badge">0 / 30 daily cap</span>
+              <span class="kpi-label">Qualified Jobs</span>
+              <span class="kpi-tag kpi-tag--emerald" id="kpi-qualified-badge">AI Matched</span>
+            </div>
+            <div class="kpi-value mono-num" id="kpi-qualified">0</div>
+            <p class="kpi-foot">Roles passing skill, experience &amp; role fit</p>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-card__head">
+              <span class="kpi-label">Confirmed Applications</span>
+              <span class="kpi-tag kpi-tag--blue" id="kpi-quota-badge">0 / 30 daily cap</span>
             </div>
             <div class="kpi-value mono-num" id="kpi-applied">0</div>
-            <p class="kpi-foot">Confirmed submissions (excludes dry-run)</p>
+            <p class="kpi-foot">Verified submissions (excludes dry-run)</p>
           </article>
 
           <article class="kpi-card">
             <div class="kpi-card__head">
               <span class="kpi-label">Interviews</span>
-              <span class="kpi-tag kpi-tag--blue" id="kpi-success-rate">Active Stage</span>
+              <span class="kpi-tag kpi-tag--emerald" id="kpi-failed-tag">All Clear</span>
             </div>
             <div class="kpi-value mono-num" id="kpi-interviews">0</div>
-            <p class="kpi-foot">Interview-stage opportunities</p>
-          </article>
-
-          <article class="kpi-card">
-            <div class="kpi-card__head">
-              <span class="kpi-label">Pending Review</span>
-              <span class="kpi-tag kpi-tag--amber" id="kpi-failed-tag">0 Attention</span>
-            </div>
-            <div class="kpi-value mono-num" id="kpi-queue">0</div>
+            <span class="sr-only" id="kpi-queue">0</span>
             <span class="sr-only" id="kpi-skipped">0</span>
-            <p class="kpi-foot">Jobs in Priority Queue awaiting approval</p>
+            <span class="sr-only" id="kpi-success-rate">0</span>
+            <p class="kpi-foot" id="kpi-interviews-foot">Active interview-stage opportunities</p>
           </article>
         </div>
 
@@ -708,16 +703,22 @@
         </article>
       </section>
 
-      <!-- SCREEN 2: DISCOVER JOBS (/jobs) — 60/40 Split + 5-Bar Match Explanation -->
+      <!-- SCREEN 2: DISCOVER JOBS (/jobs) — Decision-Making & Transparent Intelligence -->
       <section id="view-discover" role="tabpanel" aria-labelledby="tab-discover" class="view-panel" hidden>
         <div class="section-header">
           <div>
             <h2 class="page-title">Discover Jobs</h2>
-            <p class="page-subtitle">Find opportunities that match your experience and career goals.</p>
+            <p class="page-subtitle">Evaluate job fit, transparent qualification scoring, and tailored resume recommendations.</p>
           </div>
           <div class="ledger-controls">
-            <input id="discover-search-input" type="search" autocomplete="off" class="input-control" placeholder="Filter by title, skill, company..." />
-            <select id="discover-mode-filter" class="input-control" aria-label="Filter by work mode">
+            <div class="filter-group" role="group" aria-label="Saved search filters">
+              <button type="button" class="filter-chip is-active" data-saved-search="">All Roles</button>
+              <button type="button" class="filter-chip" data-saved-search="FastAPI">Python + FastAPI</button>
+              <button type="button" class="filter-chip" data-saved-search="LLM">GenAI / LLM</button>
+              <button type="button" class="filter-chip" data-saved-search="Spark">Data &amp; ETL</button>
+            </div>
+            <input id="discover-search-input" type="search" autocomplete="off" class="input-control" placeholder="Search title, skill, company..." style="width: 240px;" />
+            <select id="discover-mode-filter" class="input-control" aria-label="Filter by work mode" style="width: 150px;">
               <option value="all">All Work Modes</option>
               <option value="Remote">Remote</option>
               <option value="Hybrid">Hybrid</option>
@@ -727,16 +728,16 @@
 
         <div class="v25-discover-split">
           <div class="v25-job-list" id="discover-jobs-list" role="list" aria-label="Discovered job opportunities"></div>
-          <aside class="v25-match-panel" id="discover-detail-panel" aria-label="Selected job details and match explanation"></aside>
+          <aside class="v25-match-panel" id="discover-detail-panel" aria-label="Selected job intelligence and match explanation"></aside>
         </div>
       </section>
 
-      <!-- SCREEN 6: AI AGENTS (/agents) — Isolated Automation & Engine Configuration -->
+      <!-- SCREEN 6: AI AGENTS (/agents) — 3-Layer Agent Overview, Details & Pre-Flight Execution Preview -->
       <section id="view-agents" role="tabpanel" aria-labelledby="tab-agents" class="view-panel" hidden>
         <div class="section-header">
           <div>
             <h2 class="page-title">AI Agents</h2>
-            <p class="page-subtitle">Manage your job discovery and application integrations.</p>
+            <p class="page-subtitle">Layer 1: Agent Health · Layer 2: Contextual Configuration · Layer 3: Pre-Flight Execution Preview.</p>
           </div>
         </div>
 
@@ -744,10 +745,24 @@
           <article class="panel-card bot-studio-shell">
             <div class="panel-card__head">
               <div>
-                <h3 class="panel-title">Platform Integrations &amp; Automation Engines</h3>
-                <p class="panel-subtitle">Select any platform agent below to configure its credentials, search queries, and screening rules</p>
+                <h3 class="panel-title">Layer 1 — Autonomous Agent Fleet</h3>
+                <p class="panel-subtitle">Select an agent to view its pre-flight execution summary and configuration</p>
               </div>
               <span class="kpi-tag kpi-tag--emerald" id="active-bot-indicator">Active Engine: Naukri Direct + Chatbot</span>
+            </div>
+
+            <!-- Layer 3: Pre-Flight Execution Preview Banner -->
+            <div class="v26-preflight-box" id="agent-preflight-box" aria-live="polite">
+              <div class="v26-preflight-title">
+                <span id="preflight-heading">Naukri Agent is ready.</span>
+                <span class="kpi-tag kpi-tag--emerald">Connected · Next window: Hourly (08:00–21:00)</span>
+              </div>
+              <ul class="v26-preflight-list" id="preflight-bullets">
+                <li>3 Boolean search queries configured (Python, FastAPI, GenAI/LLM, Spark/ETL)</li>
+                <li>Gemini screening enabled (<code>gemini-2.5-pro</code>) · Daily cap: 30 applications</li>
+                <li>Resume attached: Default stored CV (<code>RESUME_PATH</code>)</li>
+                <li>Expected execution: Job discovery, AI qualification check, and direct/chatbot apply</li>
+              </ul>
             </div>
 
           <!-- Sleek Segmented Bot Selector Tiles -->
@@ -1137,25 +1152,26 @@
         </div>
       </section>
 
-      <!-- SCREEN 5: RECRUITER OUTREACH (/outreach) — Consolidated Contacts, Email Discovery & Composer -->
+      <!-- SCREEN 5: RECRUITER OUTREACH (/outreach) — 3 Tabs: Email Discovery, Recruiter Contacts, Email Campaigns -->
       <section id="view-outreach" role="tabpanel" aria-labelledby="tab-outreach" class="view-panel" hidden>
         <div class="section-header">
           <div>
             <h2 class="page-title">Recruiter Outreach</h2>
-            <p class="page-subtitle">Manage recruiter contacts, regex email discovery, and CV-attached cold email workflows.</p>
+            <p class="page-subtitle">Separated outreach lifecycle: Discovered → Drafted → Sent → Replied (never conflated with job application status).</p>
+          </div>
+          <div class="filter-group" role="tablist" aria-label="Outreach sections">
+            <button type="button" class="filter-chip is-active" data-outreach-tab="discovery">1. Email Discovery</button>
+            <button type="button" class="filter-chip" data-outreach-tab="contacts">2. Recruiter Contacts</button>
+            <button type="button" class="filter-chip" data-outreach-tab="campaigns">3. Email Campaigns</button>
           </div>
         </div>
 
-        <div class="bento-grid" id="outreach-studio-grid">
+        <div id="outreach-pane-discovery">
           <article class="panel-card">
             <div class="panel-card__head">
               <div>
-                <div class="eyebrow-chip">
-                  <span class="eyebrow-chip__dot" aria-hidden="true"></span>
-                  <span>EMAIL DISCOVERY · REGEX EXTRACTOR</span>
-                </div>
-                <h2 class="panel-title">Recruiter Email Scraper Studio</h2>
-                <p class="panel-subtitle">Paste any Job Description or recruiter post to extract emails &amp; auto-draft cold pitches</p>
+                <h3 class="panel-title">Guided Email Discovery Workflow</h3>
+                <p class="panel-subtitle">1. Enter Company &amp; Role · 2. Paste JD · 3. Extract Emails · 4. Review · 5. Generate Personalized Email · 6. Preview &amp; Send</p>
               </div>
             </div>
             <form id="email-scraper-form" class="form-stack">
@@ -1174,31 +1190,30 @@
                 <textarea id="sc-text" name="text" rows="3" required class="input-control" placeholder="Paste JD text here, e.g. 'Send your resume to hiring.ai@stripe.com or talent@stripe.com for immediate consideration...'"></textarea>
               </div>
               <div class="row-actions">
-                <button type="submit" class="btn btn--primary btn--sm">Scrape Emails &amp; Generate Cold Pitch</button>
+                <button type="submit" class="btn btn--primary btn--sm">Extract Emails &amp; Draft Personalized Pitch →</button>
               </div>
             </form>
           </article>
+        </div>
 
+        <div id="outreach-pane-contacts" style="margin-top: 14px;">
           <article class="panel-card">
             <div class="panel-card__head">
               <div>
-                <div class="eyebrow-chip">
-                  <span class="eyebrow-chip__dot" aria-hidden="true"></span>
-                  <span>COLD EMAIL &amp; REFERRAL LEDGER</span>
-                </div>
-                <h2 class="panel-title">Scraped Recruiters &amp; Cold Email Dispatcher</h2>
-                <p class="panel-subtitle">One-click cold email dispatch with your stored CV (<code>RESUME_PATH</code>)</p>
+                <h3 class="panel-title">Recruiter Contacts Directory</h3>
+                <p class="panel-subtitle">Full-width contact ledger with distinct outreach statuses (<code>DISCOVERED</code>, <code>DRAFTED</code>, <code>SENT</code>, <code>REPLIED</code>)</p>
               </div>
-              <button type="button" class="btn btn--accent btn--sm" id="btn-send-all-cold">Email All Pending</button>
+              <button type="button" class="btn btn--accent btn--sm" id="btn-send-all-cold">Dispatch All Drafted Emails</button>
             </div>
             <div class="table-wrap">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th scope="col">Recruiter / Email</th>
-                    <th scope="col">Company &amp; Role</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Cold Email</th>
+                    <th scope="col">Recruiter &amp; Email</th>
+                    <th scope="col">Company &amp; Target Role</th>
+                    <th scope="col">Discovery Source</th>
+                    <th scope="col">Outreach Status</th>
+                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                 <tbody id="recruiters-tbody"></tbody>
@@ -1208,12 +1223,16 @@
         </div>
       </section>
 
-      <!-- VIEW 2: JOB QUEUE -->
+      <!-- SCREEN 4: PRIORITY QUEUE (/queue) — Urgency Tiers, Bulk Toolbar & Pending Clarity -->
       <section id="view-queue" role="tabpanel" aria-labelledby="tab-queue" class="view-panel" hidden>
         <div class="section-header">
           <div>
-            <h2 class="page-title">Prioritized Job Discovery Queue</h2>
-            <p class="page-subtitle">Jobs discovered by SerpAPI, LinkedIn &amp; Naukri crawlers awaiting scheduled submission.</p>
+            <h2 class="page-title">Priority Queue</h2>
+            <p class="page-subtitle">Review and prioritize upcoming applications. Sidebar badge counts strictly <strong>Pending</strong> items.</p>
+          </div>
+          <div class="filter-group" role="group" aria-label="Filter queue view">
+            <button type="button" class="filter-chip is-active" data-queue-filter="pending">Pending Only</button>
+            <button type="button" class="filter-chip" data-queue-filter="all">All Queue History</button>
           </div>
         </div>
 
@@ -1233,11 +1252,11 @@
               <input id="q-url" name="job_url" type="url" autocomplete="url" required class="input-control" placeholder="https://www.linkedin.com/jobs/view/..." />
             </div>
             <div class="form-field form-field--compact">
-              <label for="q-priority">Priority</label>
+              <label for="q-priority">Urgency Tier</label>
               <select id="q-priority" name="priority" class="input-control">
-                <option value="1">P1 — Immediate</option>
+                <option value="1">P1 — Critical</option>
                 <option value="2" selected>P2 — High</option>
-                <option value="3">P3 — Standard</option>
+                <option value="3">P3 — Normal</option>
                 <option value="4">P4 — Low</option>
               </select>
             </div>
@@ -1248,19 +1267,27 @@
         </article>
 
         <article class="panel-card">
-          <div class="panel-card__head">
-            <h3 class="panel-title">Queued Targets</h3>
-            <span class="mono-num text-muted" id="queue-count-label">0 items</span>
+          <div class="v26-bulk-bar" aria-label="Bulk queue actions">
+            <label class="checkbox-label">
+              <input type="checkbox" id="queue-select-all" />
+              <span>Select All Visible</span>
+            </label>
+            <span class="mono-num text-muted" id="queue-count-label">0 pending</span>
+            <div class="row-actions">
+              <button type="button" class="btn btn--primary btn--sm" id="btn-queue-bulk-approve">Approve &amp; Apply Selected</button>
+              <button type="button" class="btn btn--ghost btn--sm" id="btn-queue-bulk-remove">Remove Selected</button>
+            </div>
           </div>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
                 <tr>
+                  <th scope="col">Pos</th>
                   <th scope="col">Priority</th>
-                  <th scope="col">Role</th>
-                  <th scope="col">Company</th>
-                  <th scope="col">Source Domain</th>
-                  <th scope="col">Queue Status</th>
+                  <th scope="col">Role &amp; Company</th>
+                  <th scope="col">Match</th>
+                  <th scope="col">Resume</th>
+                  <th scope="col">Execution Status</th>
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
@@ -1270,36 +1297,41 @@
         </article>
       </section>
 
-      <!-- VIEW 3: APPLICATIONS LEDGER -->
+      <!-- SCREEN 3: APPLICATIONS (/applications) — Table View + Kanban Pipeline View -->
       <section id="view-ledger" role="tabpanel" aria-labelledby="tab-ledger" class="view-panel" hidden>
         <div class="section-header">
           <div>
-            <h2 class="page-title">Applications Audit Ledger</h2>
-            <p class="page-subtitle">Complete SHA-256 deduplicated log of every job application attempt, ATS handler, and confirmation code.</p>
+            <h2 class="page-title">Applications</h2>
+            <p class="page-subtitle">Track every opportunity from preparation to offer. Click any item to open the detail drawer.</p>
           </div>
           <div class="ledger-controls">
+            <div class="filter-group" role="group" aria-label="Switch Applications View Mode">
+              <button type="button" class="filter-chip is-active" id="btn-apps-view-table" data-apps-view="table">Table View</button>
+              <button type="button" class="filter-chip" id="btn-apps-view-pipeline" data-apps-view="pipeline">Pipeline View</button>
+            </div>
             <div class="search-box">
               <label for="ledger-search" class="sr-only">Search applications</label>
               <input id="ledger-search" type="search" autocomplete="off" class="input-control" placeholder="Search role, company, ATS..." />
             </div>
             <div class="filter-group" role="group" aria-label="Filter by status">
               <button type="button" class="filter-chip is-active" data-status-filter="all">All</button>
-              <button type="button" class="filter-chip" data-status-filter="applied">Applied</button>
-              <button type="button" class="filter-chip" data-status-filter="skipped">Skipped</button>
+              <button type="button" class="filter-chip" data-status-filter="applied">Submitted</button>
+              <button type="button" class="filter-chip" data-status-filter="skipped">Skipped / Unconfirmed</button>
               <button type="button" class="filter-chip" data-status-filter="failed">Failed</button>
             </div>
           </div>
         </div>
 
-        <article class="panel-card">
+        <!-- Applications Table View -->
+        <article class="panel-card" id="apps-table-container">
           <div class="table-wrap">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th scope="col">Timestamp</th>
-                  <th scope="col">Job Title</th>
-                  <th scope="col">Company</th>
-                  <th scope="col">ATS / Site</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Job Title &amp; Company</th>
+                  <th scope="col">Source</th>
+                  <th scope="col">ATS Platform</th>
                   <th scope="col">Status</th>
                   <th scope="col">Confirmation ID</th>
                   <th scope="col">Inspect</th>
@@ -1309,6 +1341,9 @@
             </table>
           </div>
         </article>
+
+        <!-- Applications Kanban Pipeline View (Prepared, Submitted, Interview, Offer, Rejected) -->
+        <div class="v26-pipeline-board" id="apps-pipeline-board" hidden aria-label="Application Progress Pipeline"></div>
       </section>
 
       <!-- VIEW 4: CANDIDATE PROFILE & AI BRAIN -->
@@ -1633,9 +1668,21 @@
     </div>
   </div>
 
+  <!-- Ctrl + K Command Palette Modal -->
+  <div class="v25-modal-backdrop" id="cmd-palette-backdrop" hidden>
+    <div class="v25-modal-card" role="dialog" aria-modal="true" aria-label="Quick Command Palette" style="width: min(540px, 95vw);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <strong style="font-size: 13px; color: var(--text-primary);">Command Palette</strong>
+        <kbd class="v25-kbd">Esc to close</kbd>
+      </div>
+      <input id="cmd-palette-input" type="search" autocomplete="off" class="input-control" placeholder="Type a command, screen, or job action..." />
+      <div class="v26-cmd-list" id="cmd-palette-list" role="listbox"></div>
+    </div>
+  </div>
+
   <div class="toast-stack" id="toast-stack" role="status" aria-live="polite"></div>
-  <link rel="stylesheet" href="/styles.css?v=10.0" />
-  <script src="/app.js?v=10.0" defer></script>
+  <link rel="stylesheet" href="/styles.css?v=11.0" />
+  <script src="/app.js?v=11.0" defer></script>
 </body>
 </html>
 
